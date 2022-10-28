@@ -8,7 +8,7 @@ import random
 
 from matplotlib import pyplot as plt
 
-from discrete_event_sim import Simulation, Event
+from discrete_event_sim_redacted import Simulation, Event
 
 
 class Condition(enum.Enum):
@@ -113,7 +113,7 @@ def main():
     parser.add_argument("--plot_interval", type=float, default=1, help="how often to collect data points for the plot")
     args = parser.parse_args()
 
-    if args.seed:
+    if args.seed:   #if a seed is not provided, the simulation will be random
         random.seed(args.seed)  # set a seed to make experiments repeatable
     if args.verbose:
         logging.basicConfig(format='{levelname}:{message}', level=logging.INFO, style='{')  # output info on stdout
