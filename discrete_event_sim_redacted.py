@@ -1,7 +1,6 @@
-from asyncio import events
 import logging
 import heapq
-
+from multiprocessing import heap
 # TODO: implement the event queue!
 # suggestion: have a look at the heapq library (https://docs.python.org/dev/library/heapq.html)
 # and in particular heappush and heappop
@@ -13,7 +12,8 @@ class Simulation:
     """
 
     def __init__(self):
-        """Extend this method with the needed initialization.
+        """
+        Extend this method with the needed initialization.
 
         You can call super().__init__() there to call the code here.
         """
@@ -24,14 +24,13 @@ class Simulation:
 
     def schedule(self, delay, event):
         """Add an event to the event queue after the required delay."""
-
         # TODO: add event to the queue at time self.t + delay
         heapq.heappush(self.events, (self.t + delay, event))
 
     def run(self, max_t=float('inf')):
         """Run the simulation. If max_t is specified, stop it at that time."""
 
-        while self.events!=[] :  # TODO: as long as the event queue is not empty:
+        while self.events != [] :  # TODO: as long as the event queue is not empty:
             t, event = heapq.heappop(self.events) # TODO: get the first event from the queue
             if t > max_t:
                 break

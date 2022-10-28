@@ -5,7 +5,7 @@ import csv
 import collections
 from random import expovariate
 
-from discrete_event_sim import Simulation, Event
+from discrete_event_sim_redacted import Simulation, Event
 
 # To use weibull variates, for a given set of parameter do something like
 # from weibull import weibull_generator
@@ -33,13 +33,13 @@ class MMN(Simulation):
         self.schedule(expovariate(lambd), Arrival(0))
 
     def schedule_arrival(self, job_id):
-        # schedule the arrival following an exponential distribution, to compensate the number of queues the arrival
-        # time should depend also on "n"
-        self.schedule(..., ...)
+        # schedule the arrival following an exponential distribution, 
+        # to compensate the number of queues the arrival time should depend also on "n"
+        self.schedule(expovariate(self.arrival_rate), Arrival(job_id))
 
     def schedule_completion(self, job_id):
         # schedule the time of the completion event
-        self.schedule(..., ...)
+        self.schedule(self.events[job_id].arrival + self.mu, Completion(job_id))
 
     @property
     def queue_len(self):
