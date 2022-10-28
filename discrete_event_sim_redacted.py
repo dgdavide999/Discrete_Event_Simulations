@@ -47,3 +47,6 @@ class Event:
 
     def process(self, sim):
         raise NotImplementedError
+    
+    def __lt__(self, other):
+        return id(self) < id(other)
