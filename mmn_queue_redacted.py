@@ -63,6 +63,7 @@ class Arrival(Event):
         else:
             sim.queue.append(self.id)
         # schedule the arrival of the next job
+        sim.schedule_arrival(self.id + 1)
 
 class Completion(Event):
     def __init__(self, job_id):
