@@ -108,7 +108,7 @@ def main():
     parser.add_argument("--infected", type=int, default=1, help="starting infected individuals")
     parser.add_argument("--seed", help="random seed")
     parser.add_argument("--avg-contact-time", type=float, default=1)
-    parser.add_argument("--avg-recovery-time", type=float, default=3)
+    parser.add_argument("--avg-recovery-time", type=float, default=5)
     parser.add_argument("--verbose", action='store_true')
     parser.add_argument("--plot_interval", type=float, default=1, help="how often to collect data points for the plot")
     args = parser.parse_args()

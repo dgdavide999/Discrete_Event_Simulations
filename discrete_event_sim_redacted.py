@@ -19,7 +19,7 @@ class Simulation:
         """
 
         self.t = 0  # simulated time
-        self.events = []        # TODO: set up self.events as an empty queue
+        self.events:list[tuple[float, "Event"]] = []        # TODO: set up self.events as an empty queue
 
     def schedule(self, delay, event):
         """Add an event to the event queue after the required delay."""

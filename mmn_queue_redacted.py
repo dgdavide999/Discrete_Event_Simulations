@@ -39,7 +39,8 @@ class MMN(Simulation):
 
     def schedule_completion(self, job_id):
         # schedule the time of the completion event
-        self.schedule(self.events[job_id].arrival + self.mu, Completion(job_id))    #self.events[job_id].arrival mi puzza
+        self.schedule(expovariate(self.completion_rate), Completion(job_id))
+        
 
     @property
     def queue_len(self):
@@ -51,11 +52,9 @@ class Arrival(Event):
     def __init__(self, job_id):
         self.id = job_id
 
-######################################################################################
-
     def process(self, sim: MMN):
         # set the arrival time of the job
-        self.arrival = sim.t
+        sim.arrivals[self.id] = sim.t
         # if there is no running job, assign the incoming one and schedule its completion
         if sim.running is None:
             sim.running = self.id
@@ -68,22 +67,19 @@ class Arrival(Event):
 class Completion(Event):
     def __init__(self, job_id):
         self.id = job_id  # currently unused, might be useful when extending
-    
-
 
     def process(self, sim: MMN):
         assert sim.running is not None
         # set the completion time of the running job
-        self.completion = sim.mu
+        sim.completions[self.id] = sim.t
         # if the queue is not empty
         if len(sim.queue) != 0:
             # get a job from the queue
-            job = sim.queue.popleft()
+            job = sim.queue.pop()
             # schedule its completion
+            sim.schedule_completion(job)
         else:
             sim.running = None
-
-######################################################################################
 
 def main():
     parser = argparse.ArgumentParser()
