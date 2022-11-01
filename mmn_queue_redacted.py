@@ -90,15 +90,18 @@ def main():
     parser.add_argument('--max-t', type=float, default=1_000_000)
     parser.add_argument('--n', type=int, default=1)
     parser.add_argument('--csv', help="CSV file in which to store results")
+    parser.add_argument('--sample_rate', type=int, default=5000, help="queue lenght sampling rate based in simulation time")
     args = parser.parse_args()
     #initialization of MMN simulation
+    print("thread finished...exiting")
     sim = MMN(args.lambd, args.mu, args.n)
     sim.run(args.max_t)
-
     completions = sim.completions
     W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
     print(f"Average time spent in the system: {W}")
     print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
+    for t, leng in sim.sampleList:
+        print("time: ", t , ",\tnumber of events in the queue " , leng)
     # lambda = 1 lead to an division by 0, lambda > 1 lead to a negative expectation
 
     if args.csv is not None:
