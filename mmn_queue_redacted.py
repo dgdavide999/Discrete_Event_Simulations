@@ -19,18 +19,19 @@ class MMN(Simulation):
     def __init__(self, lambd, mu, n):
         if n != 1:
             raise NotImplementedError  # extend this to make it work for multiple queues
+        #check if there is at least one server
 
         super().__init__()
         self.running = None  # if not None, the id of the running job
         self.queue = collections.deque()  # FIFO queue of the system
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
-        self.lambd = lambd
-        self.n = n
-        self.mu = mu
+        self.lambd = lambd  #probability of a new job entry
+        self.n = n  #number of servers
+        self.mu = mu    #probability of finishing a job
         self.arrival_rate = lambd / n
         self.completion_rate = mu / n
-        self.schedule(expovariate(lambd), Arrival(0))
+        self.schedule(expovariate(lambd), Arrival(0))   #first job
 
     def schedule_arrival(self, job_id):
         # schedule the arrival following an exponential distribution, 
@@ -41,7 +42,6 @@ class MMN(Simulation):
         # schedule the time of the completion event
         self.schedule(expovariate(self.completion_rate), Completion(job_id))
         
-
     @property
     def queue_len(self):
         return (self.running is None) + len(self.queue)
@@ -62,7 +62,7 @@ class Arrival(Event):
         # otherwise put the job into the queue
         else:
             sim.queue.append(self.id)
-        # schedule the arrival of the next job
+        # schedule the arrival of the next job (this is where we create jobs)
         sim.schedule_arrival(self.id + 1)
 
 class Completion(Event):
@@ -83,6 +83,7 @@ class Completion(Event):
             sim.running = None
 
 def main():
+    #command line option
     parser = argparse.ArgumentParser()
     parser.add_argument('--lambd', type=float, default=0.7)
     parser.add_argument('--mu', type=float, default=1)
@@ -90,7 +91,7 @@ def main():
     parser.add_argument('--n', type=int, default=1)
     parser.add_argument('--csv', help="CSV file in which to store results")
     args = parser.parse_args()
-
+    #initialization of MMN simulation
     sim = MMN(args.lambd, args.mu, args.n)
     sim.run(args.max_t)
 
@@ -98,6 +99,7 @@ def main():
     W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
     print(f"Average time spent in the system: {W}")
     print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
+    # lambda = 1 lead to an division by 0, lambda > 1 lead to a negative expectation
 
     if args.csv is not None:
         with open(args.csv, 'a', newline='') as f:
