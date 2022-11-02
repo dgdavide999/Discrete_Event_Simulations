@@ -5,7 +5,7 @@ import csv
 import collections
 from random import expovariate
 
-from discrete_event_sim_redacted import Simulation, Event
+from discrete_event_sim import Simulation, Event
 
 # To use weibull variates, for a given set of parameter do something like
 # from weibull import weibull_generator
@@ -90,20 +90,23 @@ def main():
     parser.add_argument('--max-t', type=float, default=1_000_000)
     parser.add_argument('--n', type=int, default=1)
     parser.add_argument('--csv', help="CSV file in which to store results")
-    parser.add_argument('--sample_rate', type=int, default=5000, help="queue lenght sampling rate based in simulation time")
+    parser.add_argument('--sample_rate', type=int, default=1000, help="queue lenght sampling rate based in simulation time")#queue lenght sampling
     args = parser.parse_args()
     #initialization of MMN simulation
-    print("thread finished...exiting")
     sim = MMN(args.lambd, args.mu, args.n)
-    sim.run(args.max_t)
+    sim.run(args.max_t, args.sample_rate)
+
     completions = sim.completions
     W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
     print(f"Average time spent in the system: {W}")
     print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
-    for t, leng in sim.sampleList:
-        print("time: ", t , ",\tnumber of events in the queue " , leng)
     # lambda = 1 lead to an division by 0, lambda > 1 lead to a negative expectation
 
+    #-------------------------------------------------------------------------------------------------#
+    for t, leng in sim.sample_list:
+        print("time: ", t , ",\tnumber of events in the queue " , leng)
+    #-------------------------------------------------------------------------------------------------#
+    
     if args.csv is not None:
         with open(args.csv, 'a', newline='') as f:
             writer = csv.writer(f)
