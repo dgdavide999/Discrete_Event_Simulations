@@ -3,6 +3,7 @@
 import argparse
 import csv
 import collections
+import numpy as np
 from random import expovariate
 
 from discrete_event_sim import Simulation, Event
@@ -23,7 +24,9 @@ class MMN(Simulation):
 
         super().__init__()
         self.running = None  # if not None, the id of the running job
-        self.queue = collections.deque()  # FIFO queue of the system
+        self.queues = np.array(n)
+        for i in range(n):
+            self.queues[i] = collections.deque()  # FIFO queue of the system
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
         self.lambd = lambd  #probability of a new job entry
@@ -33,12 +36,12 @@ class MMN(Simulation):
         self.completion_rate = mu / n
         self.schedule(expovariate(lambd), Arrival(0))   #first job
 
-    def schedule_arrival(self, job_id):
+    def schedule_arrival(self, job_id): #TODO find the best queue on d
         # schedule the arrival following an exponential distribution, 
         # to compensate the number of queues the arrival time should depend also on "n"
         self.schedule(expovariate(self.arrival_rate), Arrival(job_id))
 
-    def schedule_completion(self, job_id):
+    def schedule_completion(self, job_id): #TODO find a way to remember the queue
         # schedule the time of the completion event
         self.schedule(expovariate(self.completion_rate), Completion(job_id))
         
