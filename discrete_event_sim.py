@@ -14,7 +14,6 @@ class Simulation:
     def __init__(self):
         """
         Extend this method with the needed initialization.
-
         You can call super().__init__() there to call the code here.
         """
 
@@ -24,7 +23,7 @@ class Simulation:
 
     def schedule(self, delay, event):
         """Add an event to the event queue after the required delay."""
-        heapq.heappush(self.events, (self.t + delay, event))        # TODO: add event to the queue at time self.t + delay
+        heapq.heappush(self.events, (self.t + delay, event))   # TODO: add event to the queue at time self.t + delay
 
     def sampling(self):
         self.sample_list.append((self.t, self.queue_len))
