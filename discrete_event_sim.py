@@ -30,7 +30,7 @@ class Simulation:
 
     def run(self, max_t=float('inf'), rate=int()):
         """Run the simulation. If max_t is specified, stop it at that time."""
-
+        """manage"""
         last_sample_t = 0
         while self.events != [] :       # TODO: as long as the event queue is not empty:
             t, event = heapq.heappop(self.events)       # TODO: get the first event from the queue

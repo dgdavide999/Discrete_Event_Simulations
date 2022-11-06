@@ -40,7 +40,7 @@ class MMN(Simulation):
             self.queues.append(collections.deque())  # FIFO queue of the system
             self.schedule(expovariate(lambd), Arrival(i, 0))   #first job
 
-    def schedule_arrival(self, job_id): #TODO find the best queue on d
+    def schedule_arrival(self, job_id): 
         # schedule the arrival following an exponential distribution, 
         # to compensate the number of queues the arrival time should depend also on "n"
         min_index = randint(0, self.n-1)
