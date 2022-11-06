@@ -4,7 +4,7 @@ import argparse
 import csv
 import collections
 import numpy as np
-from random import expovariate
+from random import expovariate, randint
 
 from discrete_event_sim import Simulation, Event
 
@@ -17,16 +17,17 @@ from discrete_event_sim import Simulation, Event
 
 class MMN(Simulation):
 
-    def __init__(self, lambd, mu, n):
+    def __init__(self, lambd, mu, n, d):
         if n != 1:
-            raise NotImplementedError  # extend this to make it work for multiple queues
-        #check if there is at least one server
+
+
+        # extend this to make it work for multiple queues
+        # check if there is at least one server
 
         super().__init__()
-        self.running = None  # if not None, the id of the running job
+        self.running = np.array(n)  # if not None, the id of the running job
         self.queues = np.array(n)
-        for i in range(n):
-            self.queues[i] = collections.deque()  # FIFO queue of the system
+        
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
         self.lambd = lambd  #probability of a new job entry
@@ -34,16 +35,29 @@ class MMN(Simulation):
         self.mu = mu    #probability of finishing a job
         self.arrival_rate = lambd / n
         self.completion_rate = mu / n
-        self.schedule(expovariate(lambd), Arrival(0))   #first job
+        self.d = round(n/100*d, 0)    #percentage of queues to be monitored
+        for i in range(n):
+            self.running[i] = None
+            self.queues[i] = collections.deque()  # FIFO queue of the system
+            self.schedule(expovariate(lambd), Arrival(i, 0))   #first job
 
     def schedule_arrival(self, job_id): #TODO find the best queue on d
         # schedule the arrival following an exponential distribution, 
         # to compensate the number of queues the arrival time should depend also on "n"
-        self.schedule(expovariate(self.arrival_rate), Arrival(job_id))
+        min_index = randint(0, self.n)
+        min = self.queues[min_index].queue_len
+        
+        for i in range(self.d - 1): #searching for the empiest queue among the d monitored
+            temp_index = randint(0, self.n)
+            temp = self.queues[temp_index].queue_len
+            if min > temp:
+                min_index = temp_index
 
-    def schedule_completion(self, job_id): #TODO find a way to remember the queue
+        self.schedule(expovariate(self.arrival_rate), Arrival(min_index, job_id))
+
+    def schedule_completion(self, server_id, job_id): #TODO find a way to remember the queue
         # schedule the time of the completion event
-        self.schedule(expovariate(self.completion_rate), Completion(job_id))
+        self.schedule(expovariate(self.completion_rate), Completion(server_id, job_id))
         
     @property
     def queue_len(self):
@@ -52,16 +66,17 @@ class MMN(Simulation):
 
 class Arrival(Event):
 
-    def __init__(self, job_id):
+    def __init__(self, server_id, job_id):
+        super().__init__(server_id)
         self.id = job_id
 
     def process(self, sim: MMN):
         # set the arrival time of the job
         sim.arrivals[self.id] = sim.t
         # if there is no running job, assign the incoming one and schedule its completion
-        if sim.running is None:
+        if sim.running[self.server_id] is None:
             sim.running = self.id
-            sim.schedule_completion(self.id)
+            sim.schedule_completion(self.server_id, self.id)
         # otherwise put the job into the queue
         else:
             sim.queue.append(self.id)
@@ -69,11 +84,12 @@ class Arrival(Event):
         sim.schedule_arrival(self.id + 1)
 
 class Completion(Event):
-    def __init__(self, job_id):
+    def __init__(self, server_id, job_id):
+        super().__init__(server_id)
         self.id = job_id  # currently unused, might be useful when extending
 
     def process(self, sim: MMN):
-        assert sim.running is not None
+        assert sim.running[self.server_id] is not None
         # set the completion time of the running job
         sim.completions[self.id] = sim.t
         # if the queue is not empty
@@ -81,7 +97,7 @@ class Completion(Event):
             # get a job from the queue
             job = sim.queue.pop()
             # schedule its completion
-            sim.schedule_completion(job)
+            sim.schedule_completion(self.server_id, job)
         else:
             sim.running = None
 
@@ -94,9 +110,11 @@ def main():
     parser.add_argument('--n', type=int, default=1)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=1000, help="queue lenght sampling rate based in simulation time")#queue lenght sampling
+    parser.add_argument('--d', type=int, default=33, help="percentage of servers to be queried")
     args = parser.parse_args()
+    assert args.d > 0 and args.d <= 100
     #initialization of MMN simulation
-    sim = MMN(args.lambd, args.mu, args.n)
+    sim = MMN(args.lambd, args.mu, args.n, args.d)
     sim.run(args.max_t, args.sample_rate)
 
     completions = sim.completions

@@ -53,6 +53,9 @@ class Event:
     You may need to define __init__ to set up all the necessary information.
     """
 
+    def __init__(self, server_id):
+        self.server_id = server_id
+
     def process(self, sim):
         raise NotImplementedError
     
