@@ -23,9 +23,8 @@ class MMN(Simulation):
         # check if there is at least one server
 
         super().__init__()
-        self.running = np.array(n)  # if not None, the id of the running job
-        self.queues = np.array(n)
-        
+        self.running = np.empty(n)  # if not None, the id of the running job
+        self.queues = []
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
         self.lambd = lambd  #probability of a new job entry
@@ -34,20 +33,22 @@ class MMN(Simulation):
         self.arrival_rate = lambd / n
         self.completion_rate = mu / n
         self.d = round(n/100*d, 0)    #percentage of queues to be monitored
+        if self.d == 0:
+            self.d = 1
         for i in range(n):
             self.running[i] = None
-            self.queues[i] = collections.deque()  # FIFO queue of the system
+            self.queues.append(collections.deque())  # FIFO queue of the system
             self.schedule(expovariate(lambd), Arrival(i, 0))   #first job
 
     def schedule_arrival(self, job_id): #TODO find the best queue on d
         # schedule the arrival following an exponential distribution, 
         # to compensate the number of queues the arrival time should depend also on "n"
-        min_index = randint(0, self.n)
-        min = self.queues[min_index].queue_len
+        min_index = randint(0, self.n-1)
+        min = self.queue_len(min_index)
         
         for i in range(self.d - 1): #searching for the empiest queue among the d monitored
             temp_index = randint(0, self.n)
-            temp = self.queues[temp_index].queue_len
+            temp = self.queue_len(temp_index)
             if min > temp:
                 min_index = temp_index
 
@@ -57,9 +58,9 @@ class MMN(Simulation):
         # schedule the time of the completion event
         self.schedule(expovariate(self.completion_rate), Completion(server_id, job_id))
         
-    @property
-    def queue_len(self):
-        return (self.running is None) + len(self.queue)
+    #@property
+    def queue_len(self, server_id):
+        return (self.running[server_id] is None) + len(self.queues[server_id])
 
 
 class Arrival(Event):
@@ -77,7 +78,7 @@ class Arrival(Event):
             sim.schedule_completion(self.server_id, self.id)
         # otherwise put the job into the queue
         else:
-            sim.queue.append(self.id)
+            sim.queues.append(self.id)
         # schedule the arrival of the next job (this is where we create jobs)
         sim.schedule_arrival(self.id + 1)
 
