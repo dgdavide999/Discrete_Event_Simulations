@@ -18,8 +18,6 @@ from discrete_event_sim import Simulation, Event
 class MMN(Simulation):
 
     def __init__(self, lambd, mu, n, d):
-        if n != 1:
-
 
         # extend this to make it work for multiple queues
         # check if there is at least one server
