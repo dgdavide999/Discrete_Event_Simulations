@@ -8,7 +8,7 @@ import random
 
 from matplotlib import pyplot as plt
 
-from discrete_event_sim_redacted import Simulation, Event
+from discrete_event_sim import Simulation, Event
 
 
 class Condition(enum.Enum):

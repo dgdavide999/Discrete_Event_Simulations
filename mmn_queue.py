@@ -73,12 +73,14 @@ class Arrival(Event):
         # set the arrival time of the job
         sim.arrivals[self.id] = sim.t
         # if there is no running job, assign the incoming one and schedule its completion
-        if sim.running[self.server_id] is None:
-            sim.running = self.id
+        '''if sim.running[self.server_id] is None:
+            sim.running = self.id'''
+        if sim.running[0] is None:
+            sim.running[0] = self.id
             sim.schedule_completion(self.server_id, self.id)
         # otherwise put the job into the queue
         else:
-            sim.queues.append(self.id)
+            sim.queues[self.server_id].append(self.id)
         # schedule the arrival of the next job (this is where we create jobs)
         sim.schedule_arrival(self.id + 1)
 
