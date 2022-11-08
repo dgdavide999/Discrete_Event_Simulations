@@ -23,7 +23,7 @@ class MMN(Simulation):
         # check if there is at least one server
 
         super().__init__()
-        self.running = np.empty(n)  # if not None, the id of the running job
+        self.running = [] # if not None, the id of the running job
         self.queues = []
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
@@ -32,11 +32,11 @@ class MMN(Simulation):
         self.mu = mu    #probability of finishing a job
         self.arrival_rate = lambd / n
         self.completion_rate = mu / n
-        self.d = round(n/100*d, 0)    #percentage of queues to be monitored
+        self.d = int(round(n/100*d, 0))    #percentage of queues to be monitored
         if self.d == 0:
             self.d = 1
         for i in range(n):
-            self.running[i] = None
+            self.running.append(None)
             self.queues.append(collections.deque())  # FIFO queue of the system
             self.schedule(expovariate(lambd), Arrival(i, 0))   #first job
 
@@ -73,10 +73,8 @@ class Arrival(Event):
         # set the arrival time of the job
         sim.arrivals[self.id] = sim.t
         # if there is no running job, assign the incoming one and schedule its completion
-        '''if sim.running[self.server_id] is None:
-            sim.running = self.id'''
-        if sim.running[0] is None:
-            sim.running[0] = self.id
+        if sim.running[self.server_id] is None:
+            sim.running[self.server_id] = self.id
             sim.schedule_completion(self.server_id, self.id)
         # otherwise put the job into the queue
         else:
@@ -94,13 +92,13 @@ class Completion(Event):
         # set the completion time of the running job
         sim.completions[self.id] = sim.t
         # if the queue is not empty
-        if len(sim.queue) != 0:
+        if len(sim.queues[self.server_id]) != 0:
             # get a job from the queue
-            job = sim.queue.pop()
+            job = sim.queues[self.server_id].pop()
             # schedule its completion
             sim.schedule_completion(self.server_id, job)
         else:
-            sim.running = None
+            sim.running[self.server_id] = None
 
 def main():
     #command line option
@@ -108,7 +106,7 @@ def main():
     parser.add_argument('--lambd', type=float, default=0.7)
     parser.add_argument('--mu', type=float, default=1)
     parser.add_argument('--max-t', type=float, default=1_000_000)
-    parser.add_argument('--n', type=int, default=1)
+    parser.add_argument('--n', type=int, default=2)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=1000, help="queue lenght sampling rate based in simulation time")#queue lenght sampling
     parser.add_argument('--d', type=int, default=33, help="percentage of servers to be queried")

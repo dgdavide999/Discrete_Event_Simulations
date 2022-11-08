@@ -26,7 +26,7 @@ class Simulation:
         heapq.heappush(self.events, (self.t + delay, event))   # TODO: add event to the queue at time self.t + delay
 
     def sampling(self):
-        self.sample_list.append((self.t, self.queue_len))
+        self.sample_list.append((self.t, self.queue_len(0)))
 
     def run(self, max_t=float('inf'), rate=int()):
         """Run the simulation. If max_t is specified, stop it at that time."""
