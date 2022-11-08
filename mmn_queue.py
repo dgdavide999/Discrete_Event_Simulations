@@ -30,8 +30,8 @@ class MMN(Simulation):
         self.lambd = lambd  #probability of a new job entry
         self.n = n  #number of servers
         self.mu = mu    #probability of finishing a job
-        self.arrival_rate = lambd / n
-        self.completion_rate = mu / n
+        self.arrival_rate = lambd * n
+        self.completion_rate = mu
         self.d = int(round(n/100*d, 0))    #percentage of queues to be monitored
         if self.d == 0:
             self.d = 1
@@ -47,12 +47,12 @@ class MMN(Simulation):
         min = self.queue_len(min_index)
         
         for i in range(self.d - 1): #searching for the empiest queue among the d monitored
-            temp_index = randint(0, self.n)
+            temp_index = randint(0, self.n-1)
             temp = self.queue_len(temp_index)
             if min > temp:
                 min_index = temp_index
 
-        self.schedule(expovariate(self.arrival_rate), Arrival(min_index, job_id))
+        self.schedule(expovariate(self.lambd), Arrival(min_index, job_id))
 
     def schedule_completion(self, server_id, job_id): #TODO find a way to remember the queue
         # schedule the time of the completion event
@@ -106,10 +106,10 @@ def main():
     parser.add_argument('--lambd', type=float, default=0.7)
     parser.add_argument('--mu', type=float, default=1)
     parser.add_argument('--max-t', type=float, default=1_000_000)
-    parser.add_argument('--n', type=int, default=2)
+    parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=1000, help="queue lenght sampling rate based in simulation time")#queue lenght sampling
-    parser.add_argument('--d', type=int, default=33, help="percentage of servers to be queried")
+    parser.add_argument('--d', type=int, default=70, help="percentage of servers to be queried")
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
     #initialization of MMN simulation
@@ -123,8 +123,8 @@ def main():
     # lambda = 1 lead to an division by 0, lambda > 1 lead to a negative expectation
 
     #-------------------------------------------------------------------------------------------------#
-    for t, leng in sim.sample_list:
-        print("time: ", t , ",\tnumber of events in the queue " , leng)
+    '''for t, leng in sim.sample_list:
+        print("time: ", t , ",\tnumber of events in the queue " , leng)'''
     #-------------------------------------------------------------------------------------------------#
     
     if args.csv is not None:
