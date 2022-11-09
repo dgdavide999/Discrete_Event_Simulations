@@ -25,9 +25,6 @@ class Simulation:
         """Add an event to the event queue after the required delay."""
         heapq.heappush(self.events, (self.t + delay, event))   # TODO: add event to the queue at time self.t + delay
 
-    def sampling(self):
-        self.sample_list.append((self.t, self.queue_len(0)))
-
     def run(self, max_t=float('inf'), rate=int()):
         """Run the simulation. If max_t is specified, stop it at that time."""
         """manage"""
@@ -40,7 +37,7 @@ class Simulation:
             event.process(self)
             if self.t - last_sample_t >= rate:
                 last_sample_t = self.t
-                self.sampling()
+                self.sample_list.append([self.t, self.sampling()])
 
     def log_info(self, msg):
         logging.info(f'{self.t:.2f}: {msg}')

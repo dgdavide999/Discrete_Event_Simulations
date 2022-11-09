@@ -40,19 +40,24 @@ class MMN(Simulation):
             self.queues.append(collections.deque())  # FIFO queue of the system
             self.schedule(expovariate(lambd), Arrival(i, 0))   #first job
 
-    def schedule_arrival(self, job_id): 
-        # schedule the arrival following an exponential distribution, 
-        # to compensate the number of queues the arrival time should depend also on "n"
+    def marketplace(self):
         min_index = randint(0, self.n-1)
         min = self.queue_len(min_index)
-        
-        for i in range(self.d - 1): #searching for the empiest queue among the d monitored
+
+        for i in range(self.d - 1):  # searching for the empiest queue among the d monitored
             temp_index = randint(0, self.n-1)
             temp = self.queue_len(temp_index)
             if min > temp:
+                min = temp
                 min_index = temp_index
+        #print(min_index)       DEBUG
+        #print(self.sampling())     DEBUG
+        return min_index
 
-        self.schedule(expovariate(self.lambd), Arrival(min_index, job_id))
+    def schedule_arrival(self, job_id): 
+        # schedule the arrival following an exponential distribution, 
+        # to compensate the number of queues the arrival time should depend also on "n
+        self.schedule(expovariate(self.lambd), Arrival(self.marketplace(), job_id))
 
     def schedule_completion(self, server_id, job_id): #TODO find a way to remember the queue
         # schedule the time of the completion event
@@ -62,6 +67,11 @@ class MMN(Simulation):
     def queue_len(self, server_id):
         return (self.running[server_id] is None) + len(self.queues[server_id])
 
+    def sampling(self):
+        sample_list = []
+        for i in range(self.n):
+            sample_list.append(self.queue_len(i))
+        return sample_list
 
 class Arrival(Event):
 
@@ -105,26 +115,28 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--lambd', type=float, default=0.7)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=1_000_000)
+    parser.add_argument('--max-t', type=float, default=5)
     parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
-    parser.add_argument('--sample_rate', type=int, default=1000, help="queue lenght sampling rate based in simulation time")#queue lenght sampling
+    parser.add_argument('--sample_rate', type=int, default=-1000, help="queue lenght sampling rate based in simulation time")#queue lenght sampling
     parser.add_argument('--d', type=int, default=70, help="percentage of servers to be queried")
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
     #initialization of MMN simulation
     sim = MMN(args.lambd, args.mu, args.n, args.d)
     sim.run(args.max_t, args.sample_rate)
-
     completions = sim.completions
+
+    for t, leng in sim.sample_list:
+        print("time: ", round(t, 0) , ",\tnumber of events in the queue " , leng)
+
     W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
     print(f"Average time spent in the system: {W}")
     print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
     # lambda = 1 lead to an division by 0, lambda > 1 lead to a negative expectation
 
     #-------------------------------------------------------------------------------------------------#
-    '''for t, leng in sim.sample_list:
-        print("time: ", t , ",\tnumber of events in the queue " , leng)'''
+    
     #-------------------------------------------------------------------------------------------------#
     
     if args.csv is not None:
