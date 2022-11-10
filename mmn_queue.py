@@ -38,7 +38,7 @@ class MMN(Simulation):
         for i in range(n):
             self.running.append(None)
             self.queues.append(collections.deque())  # FIFO queue of the system
-        self.schedule(expovariate(lambd), Arrival(0, 0))  # first job
+        self.schedule(expovariate(lambd * self.n), Arrival(0, 0))  # first job      lambd moltiplicato per n
 
     def marketplace(self):
         min_index = randint(0, self.n-1)
@@ -57,8 +57,8 @@ class MMN(Simulation):
     def schedule_arrival(self, job_id):
         # schedule the arrival following an exponential distribution,
         # to compensate the number of queues the arrival time should depend also on "n
-        self.schedule(expovariate(self.lambd),
-                      Arrival(self.marketplace(), job_id))
+        self.schedule(expovariate(self.lambd * self.n),                 
+                      Arrival(self.marketplace(), job_id))          #instead of arrival rate
 
     # TODO find a way to remember the queue
     def schedule_completion(self, server_id, job_id):
