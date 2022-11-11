@@ -5,6 +5,7 @@ import csv
 import collections
 import numpy as np
 from random import expovariate, randint
+import sys
 
 from discrete_event_sim import Simulation, Event
 
@@ -122,33 +123,27 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--lambd', type=float, default=0.7)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=1_000_000)
+    parser.add_argument('--max-t', type=float, default=1_000)
     parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
-    parser.add_argument('--sample_rate', type=int, default=1000,
-                        help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
-    parser.add_argument('--d', type=int, default=70,
-                        help="percentage of servers to be queried")
+    parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
+    parser.add_argument('--d', type=int, default=70, help="percentage of servers to be queried")
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
+    
     # initialization of MMN simulation
     sim = MMN(args.lambd, args.mu, args.n, args.d)
     sim.run(args.max_t, args.sample_rate)
     completions = sim.completions
 
+    #create a log file if not exist and write the results
+    f = open("out.txt",'w+')
     for t, leng in sim.sample_list:
-        print("time: ", round(t, 0), ",\tnumber of events in the queue ", leng)
+        print("time: ", round(t, 0), ",\tnumber of events in the queue ", leng, file=f)
 
-    W = (sum(completions.values()) -
-         sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
+    W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
     print(f"Average time spent in the system: {W}")
-    print(
-        f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
-    # lambda = 1 lead to an division by 0, lambda > 1 lead to a negative expectation
-
-    # -------------------------------------------------------------------------------------------------#
-
-    # -------------------------------------------------------------------------------------------------#
+    print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
 
     if args.csv is not None:
         with open(args.csv, 'a', newline='') as f:
