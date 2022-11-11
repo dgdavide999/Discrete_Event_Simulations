@@ -5,7 +5,7 @@ import csv
 import collections
 import numpy as np
 from random import expovariate, randint
-import sys
+import datetime
 
 from discrete_event_sim import Simulation, Event
 
@@ -137,13 +137,17 @@ def main():
     completions = sim.completions
 
     #create a log file if not exist and write the results
+    date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    
     f = open("out.txt",'w+')
-    for t, leng in sim.sample_list:
-        print("time: ", round(t, 0), ",\tnumber of events in the queue ", leng, file=f)
-
+    print("Simulation: ", date_time, "\tn = ", args.n, "\tlambd = ", args.lambd, "\tmu = ", args.mu, "\td = ", args.d, "\tmax_t = ", args.max_t, "\n", file=f)
     W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
-    print(f"Average time spent in the system: {W}")
-    print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}")
+    print(f"Average time spent in the system: {W}", file=f)
+    print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}", "\n", file=f)
+    
+    for t, leng in sim.sample_list:
+        print("time:  ", round(t, 0), "\tnumber of events in the queue", leng, file=f)
+    print("\n\n", file=f)
 
     if args.csv is not None:
         with open(args.csv, 'a', newline='') as f:
