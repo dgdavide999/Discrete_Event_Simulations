@@ -30,7 +30,7 @@ class MMN(Simulation):
         self.lambd = lambd  # probability of a new job entry
         self.n = n  # number of servers
         self.mu = mu  # probability of finishing a job
-        self.arrival_rate = lambd * n
+        self.arrival_rate = lambd 
         self.completion_rate = mu
         self.d = int(round(n/100*d, 0))  # percentage of queues to be monitored
         if self.d == 0:
