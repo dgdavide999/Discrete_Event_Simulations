@@ -16,7 +16,6 @@ class Simulation:
         Extend this method with the needed initialization.
         You can call super().__init__() there to call the code here.
         """
-
         self.t = 0  # simulated time
         self.events = []        # TODO: set up self.events as an empty queue
         self.sample_list = []   #list of queue lenght samples
@@ -29,16 +28,22 @@ class Simulation:
         """Run the simulation. If max_t is specified, stop it at that time."""
         """manage"""
         last_sample_t = 0
-        while self.events != [] :       # TODO: as long as the event queue is not empty:
-            t, event = heapq.heappop(self.events)       # TODO: get the first event from the queue
-            if t > max_t:
+         # as long as the event queue is not empty:
+        while self.events != [] :
+            # get the first event from the queue                      
+            t, event = heapq.heappop(self.events)
+            # if simulation's time limit is reached stop    
+            if t > max_t:                               
                 break
             self.t = t
-            event.process(self)
+            # execute the job
+            event.process(self)       
+            #sample the queues lenght                  
             if self.t - last_sample_t >= rate:
                 last_sample_t = self.t
                 self.sample_list.append([self.t, self.sampling()])
 
+    # TODO : check if it may be usefull
     def log_info(self, msg):
         logging.info(f'{self.t:.2f}: {msg}')
 

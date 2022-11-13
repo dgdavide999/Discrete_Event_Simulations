@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-
 import argparse
 import csv
 import collections
-import numpy as np
 from random import expovariate, randint
 import datetime
 
@@ -19,13 +16,12 @@ from discrete_event_sim import Simulation, Event
 class MMN(Simulation):
 
     def __init__(self, lambd, mu, n, d):
-
         # extend this to make it work for multiple queues
-        # check if there is at least one server
-
         super().__init__()
+        # check if there is at least one server
+        assert n > 0
         self.running = []  # if not None, the id of the running job
-        self.queues = []
+        self.queues = [] # list of server queue
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
         self.lambd = lambd  # probability of a new job entry
@@ -36,30 +32,29 @@ class MMN(Simulation):
         self.d = int(round(n/100*d, 0))  # percentage of queues to be monitored
         if self.d == 0:
             self.d = 1
-        for i in range(n):
+        for _ in range(n):
             self.running.append(None)
             self.queues.append(collections.deque())  # FIFO queue of the system
-        self.schedule(expovariate(lambd * self.n), Arrival(0, 0))  # first job      lambd moltiplicato per n
+        self.schedule(expovariate(lambd * self.n), Arrival(0, 0))  # first job 
+        # lambd moltiplicato per n 'couse? TODO
 
-    def marketplace(self):
+    def supermarket(self):
         min_index = randint(0, self.n-1)
         min = self.queue_len(min_index)
 
-        for i in range(self.d):  # searching for the empiest queue among the d monitored
+        for _ in range(self.d):  # searching for the empiest queue among the d monitored
             temp_index = randint(0, self.n-1)
             temp = self.queue_len(temp_index)
             if min > temp:
                 min = temp
                 min_index = temp_index
-        #print(min_index)
-        #print(self.sampling(), "marketplace")
         return min_index
 
     def schedule_arrival(self, job_id):
         # schedule the arrival following an exponential distribution,
         # to compensate the number of queues the arrival time should depend also on "n
         self.schedule(expovariate(self.lambd * self.n),                 
-                      Arrival(self.marketplace(), job_id))          #instead of arrival rate
+                      Arrival(self.supermarket(), job_id))          #instead of arrival rate
 
     # TODO find a way to remember the queue
     def schedule_completion(self, server_id, job_id):
@@ -136,14 +131,18 @@ def main():
     sim.run(args.max_t, args.sample_rate)
     completions = sim.completions
   
-    # print sampling in a file
+    # save simulation data and sampled queue's lenght in a file
     try:
         f = open("out.txt",'w+')
         date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
+        # W is the average time spent in the sysyem , it should be like L/lambda 
+        # (L is the average queue lenght)
         W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
-        print(f"Average time spent in the system: {W}", file=f)
-        print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}", "\n", file=f)
+        #WARNING: changing the format will mess up plot creation
+        #space before \n make easier parsing
+        print(f"Average time spent in the system: {W} ", file=f)
+        print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)} \n", file=f)
         
         for t, leng in sim.sample_list:
             print("time:  ", round(t, 0), "\tnumber of events in the queue", leng, file=f)
