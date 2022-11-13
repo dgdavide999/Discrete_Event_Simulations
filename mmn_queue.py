@@ -140,7 +140,7 @@ def main():
     date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
     f = open("out.txt",'w+')
-    print("Simulation: ", date_time, "\tn = ", args.n, "\tlambd = ", args.lambd, "\tmu = ", args.mu, "\td = ", args.d, "\tmax_t = ", args.max_t, "\n", file=f)
+    print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
     W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
     print(f"Average time spent in the system: {W}", file=f)
     print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}", "\n", file=f)
