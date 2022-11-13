@@ -131,29 +131,38 @@ def main():
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
     
-    # initialization of MMN simulation
+    # MMN simulation
     sim = MMN(args.lambd, args.mu, args.n, args.d)
     sim.run(args.max_t, args.sample_rate)
     completions = sim.completions
+  
+    # print sampling in a file
+    try:
+        f = open("out.txt",'w+')
+        date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
+        W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
+        print(f"Average time spent in the system: {W}", file=f)
+        print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}", "\n", file=f)
+        
+        for t, leng in sim.sample_list:
+            print("time:  ", round(t, 0), "\tnumber of events in the queue", leng, file=f)
+        print("\n\n", file=f)
+    except Exception as e:
+        print(e)
+    finally:
+        f.close()
 
-    #create a log file if not exist and write the results
-    date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    
-    f = open("out.txt",'w+')
-    print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
-    W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
-    print(f"Average time spent in the system: {W}", file=f)
-    print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)}", "\n", file=f)
-    
-    for t, leng in sim.sample_list:
-        print("time:  ", round(t, 0), "\tnumber of events in the queue", leng, file=f)
-    print("\n\n", file=f)
-
+    # save a log in a given file
     if args.csv is not None:
-        with open(args.csv, 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([args.lambd, args.mu, args.max_t, W])
-
+        try:
+            with open(args.csv, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["lambda:",args.lambd, " mu:",args.mu, " max_t:",args.max_t, " W:",W, f" Theoretical expectation: {1 / (1 - args.lambd)}" ])
+        except Exception as e:
+                print(e)
+        finally:
+            f.close()
 
 if __name__ == '__main__':
     main()
