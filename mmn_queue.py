@@ -53,8 +53,7 @@ class MMN(Simulation):
     def schedule_arrival(self, job_id):
         # schedule the arrival following an exponential distribution,
         # to compensate the number of queues the arrival time should depend also on "n
-        self.schedule(expovariate(self.lambd * self.n),                 
-                      Arrival(self.supermarket(), job_id))          #instead of arrival rate
+        self.schedule(expovariate(self.lambd * self.n), Arrival(self.supermarket(), job_id))
 
     # TODO find a way to remember the queue
     def schedule_completion(self, server_id, job_id):
@@ -77,7 +76,7 @@ class Arrival(Event):
     def __init__(self, server_id, job_id):
         super().__init__(server_id)
         self.id = job_id
-        #print(self.id, server_id, "arrival")
+        #print(self.id, server_id, "arrival")       DEBUG
 
     def process(self, sim: MMN):
         # set the arrival time of the job
@@ -97,7 +96,7 @@ class Completion(Event):
     def __init__(self, server_id, job_id):
         super().__init__(server_id)
         self.id = job_id  # currently unused, might be useful when extending
-        #print(self.id, server_id, "complition")
+        #print(self.id, server_id, "complition")       DEBUG
 
     def process(self, sim: MMN):
         assert sim.running[self.server_id] is not None

@@ -27,7 +27,7 @@ try:
         2.2.1) example: sample 2, queue_len 2, only one server has length 2, so the probability
                         to have a full queue is 1 out of 10*2 (2 for the sampling, 10 for the number
                         of server for each sampling)
-    2.9)from now on i act like i need just one rerver with the required lenght
+    2.9)from now on i act like i need just one server with the required lenght
     3)foreach sampling insert the number of server that reach the lenght
         3.1) we must keep trak about the number of samplings (we can write in sampling metadata or use a counter)
         3.2) if a server has lenght = 3, it will be marked like it has reached len 1,2 and 3
