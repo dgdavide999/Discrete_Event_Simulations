@@ -113,18 +113,15 @@ class Completion(Event):
         else:
             sim.running[self.server_id] = None
 
+# create a dictionary with for all queue length the number of times it appears
 def CountFrequency(my_list):
- 
-    # Creating an empty dictionary
     freq = {}
     for item in my_list:
         if (item in freq):
             freq[item] += 1
         else:
             freq[item] = 1
- 
-    '''for key, value in freq.items():
-        print ("% d : % d"%(key, value))'''
+    
     printGraph(freq)
 
 def main():
