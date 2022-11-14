@@ -28,7 +28,7 @@ class Simulation:
         """Run the simulation. If max_t is specified, stop it at that time."""
         """manage"""
         last_sample_t = 0
-         # as long as the event queue is not empty:
+        # as long as the event queue is not empty:
         while self.events != [] :
             # get the first event from the queue                      
             t, event = heapq.heappop(self.events)

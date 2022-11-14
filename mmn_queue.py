@@ -12,7 +12,8 @@ from graphics import printGraph
 # gen = weibull_generator(shape, mean)
 #
 # and then call gen() every time you need a random variable
-forGraph = []
+
+forGraph = []   #list containing queue lenght samples for each server (TODO: check the scope of this variable)
 
 class MMN(Simulation):
 
