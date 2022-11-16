@@ -5,15 +5,13 @@ from random import expovariate, randint
 import datetime
 
 from discrete_event_sim import Simulation, Event
-from graphics import printGraph
+
 
 # To use weibull variates, for a given set of parameter do something like
 # from weibull import weibull_generator
 # gen = weibull_generator(shape, mean)
 #
 # and then call gen() every time you need a random variable
-
-forGraph = []   #list containing queue lenght samples for each server (TODO: check the scope of this variable)
 
 class MMN(Simulation):
 
@@ -70,7 +68,6 @@ class MMN(Simulation):
         sample_list = []
         for i in range(self.n):
             sample_list.append(self.queue_len(i))
-            forGraph.append(self.queue_len(i))
         return sample_list
 
 
@@ -115,22 +112,14 @@ class Completion(Event):
             sim.running[self.server_id] = None
 
 # create a dictionary with for all queue length the number of times it appears
-def CountFrequency(my_list):
-    freq = {}
-    for item in my_list:
-        if (item in freq):
-            freq[item] += 1
-        else:
-            freq[item] = 1
-    
-    printGraph(freq)
+
 
 def main():
     # command line option
     parser = argparse.ArgumentParser()
     parser.add_argument('--lambd', type=float, default=0.5)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=1_000_000)
+    parser.add_argument('--max-t', type=float, default=1_000)
     parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=10, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
@@ -174,8 +163,6 @@ def main():
                 print(e)
         finally:
             f.close()
-    
-    CountFrequency(forGraph)
 
 if __name__ == '__main__':
     main()

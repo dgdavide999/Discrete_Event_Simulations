@@ -1,6 +1,7 @@
 import logging
 import heapq
 from multiprocessing import heap
+from graphics import CountFrequency
 # TODO: implement the event queue!
 # suggestion: have a look at the heapq library (https://docs.python.org/dev/library/heapq.html)
 # and in particular heappush and heappop
@@ -42,6 +43,8 @@ class Simulation:
             if self.t - last_sample_t >= rate:
                 last_sample_t = self.t
                 self.sample_list.append([self.t, self.sampling()])
+        
+        CountFrequency(self.sample_list)
 
     # TODO : check if it may be usefull
     def log_info(self, msg):
