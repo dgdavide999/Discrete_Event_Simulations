@@ -115,13 +115,13 @@ class Completion(Event):
 def main():
     # command line option
     parser = argparse.ArgumentParser()
-    parser.add_argument('--lambd', type=float, default=0.7)
+    parser.add_argument('--lambd', type=float, default=0.5)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=1_000)
+    parser.add_argument('--max-t', type=float, default=1_000_000)
     parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
-    parser.add_argument('--d', type=int, default=70, help="percentage of servers to be queried")
+    parser.add_argument('--d', type=int, default=10, help="percentage of servers to be queried")
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
     
@@ -144,7 +144,7 @@ def main():
         print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)} \n", file=f)
         
         for t, leng in sim.sample_list:
-            print("time:  ", round(t, 0), "\tnumber of events in the queue", leng, file=f)
+            print("time:", round(t, 0), " number of events in the queue", leng, file=f)
         print("\n\n", file=f)
     except Exception as e:
         print(e)

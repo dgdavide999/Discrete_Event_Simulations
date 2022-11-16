@@ -1,23 +1,40 @@
 import matplotlib.pyplot as plt
-import pandas as p
+import re
 
 document = "out.txt"
+
+def insert(sample):
+    samp_dict = dict()
+    for i in sample:
+        i = re.findall(r'\d+', i)
+        for j in range(int(i[0])+1):
+            if j in samp_dict:
+                samp_dict[j] += 1
+            else:
+                samp_dict[j] = 1
+    samp_dict = {k: v/n for k, v in samp_dict.items()}
+    percentage.append(samp_dict)
+
 
 try:
     file = open(document, 'r')
     #simulation data
     sim_data = file.readlines(0)
     sim_metadata = sim_data[0].split(" ")
-    print(sim_metadata)
     n = int(sim_metadata[5])
     W = sim_data[2].split(" ")
     W = W[6]
     expectation = sim_data[3].split(" ")
     expectation = expectation[6]
 
+    
+    #sampled queue's lenght
+    percentage = []
     #sampling data
-    lenght_percentages = dict()
-
+    for line in sim_data[5:]:
+        line = line.split(" ")
+        insert(line[9:])
+    print(percentage)
     '''
     TODO: 
     1) create a dictionary 
@@ -43,13 +60,24 @@ except Exception as e:
 finally:
     file.close()
 
+final_dict = dict()
+for d in percentage:
+    for k, v in d.items():
+        if k in final_dict:
+            final_dict[k] += v
+        else:
+            final_dict[k] = v
+final_dict = {k: v/len(percentage) for k, v in final_dict.items()}
+
+print("\n\n\n", final_dict)
+
 plt.title(sim_metadata[0] + " " + sim_metadata[1]+ " "+sim_metadata[2])
 plt.xlabel('queues lenght')
 plt.ylabel('percentage fullness')
 
-lenght_tiks = [0, 1, 2, 3, 4, 5]
+lenght_tiks = [0, 2, 4, 6, 8, 10, 12 ,14]
 percentage_tiks = [0, 0.2, 0.4, 0.6, 0.8, 1]
-#plt.plot(lenght, percentage)
+plt.plot(final_dict.keys(), final_dict.values())
 plt.xticks(lenght_tiks)
 plt.yticks(percentage_tiks)
 plt.show()
