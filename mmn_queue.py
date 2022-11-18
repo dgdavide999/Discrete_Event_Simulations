@@ -62,7 +62,7 @@ class MMN(Simulation):
 
     # @property
     def queue_len(self, server_id):
-        return (self.running[server_id] is None) + len(self.queues[server_id])
+        return (self.running[server_id] is not None) + len(self.queues[server_id])
 
     def sampling(self):
         sample_list = []
