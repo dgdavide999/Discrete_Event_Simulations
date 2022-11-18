@@ -115,7 +115,7 @@ class Completion(Event):
 def main():
     # command line option
     parser = argparse.ArgumentParser()
-    parser.add_argument('--lambd', type=float, default=0.5)
+    parser.add_argument('--lambd', type=float, default=0.99)
     parser.add_argument('--mu', type=float, default=1)
     parser.add_argument('--max-t', type=float, default=1_000_000)
     parser.add_argument('--n', type=int, default=10)
