@@ -30,6 +30,9 @@ class Simulation:
         last_sample_t = 0
          # as long as the event queue is not empty:
         while self.events != [] :
+            if self.t - last_sample_t >= rate:
+                last_sample_t = self.t
+                self.sample_list.append([self.t, self.sampling()])
             # get the first event from the queue                      
             t, event = heapq.heappop(self.events)
             # if simulation's time limit is reached stop    
@@ -39,9 +42,7 @@ class Simulation:
             # execute the job
             event.process(self)       
             #sample the queues lenght                  
-            if self.t - last_sample_t >= rate:
-                last_sample_t = self.t
-                self.sample_list.append([self.t, self.sampling()])
+            
 
     # TODO : check if it may be usefull
     def log_info(self, msg):

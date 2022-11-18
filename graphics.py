@@ -14,6 +14,7 @@ def insert(sample):
                 samp_dict[j] = 1
     samp_dict = {k: v/n for k, v in samp_dict.items()}
     percentage.append(samp_dict)
+    #print(samp_dict)
 
 
 try:
@@ -31,10 +32,11 @@ try:
     #sampled queue's lenght
     percentage = []
     #sampling data
+    #print(sim_data[5:])
     for line in sim_data[5:]:
         line = line.split(" ")
         insert(line[9:])
-    print(percentage)
+    #print(percentage)
     '''
     TODO: 
     1) create a dictionary 
@@ -74,6 +76,7 @@ print("\n\n\n", final_dict)
 plt.title(sim_metadata[0] + " " + sim_metadata[1]+ " "+sim_metadata[2])
 plt.xlabel('queues lenght')
 plt.ylabel('percentage fullness')
+plt.xlim(0, 14)
 
 lenght_tiks = [0, 2, 4, 6, 8, 10, 12 ,14]
 percentage_tiks = [0, 0.2, 0.4, 0.6, 0.8, 1]

@@ -121,7 +121,7 @@ def main():
     parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
-    parser.add_argument('--d', type=int, default=10, help="percentage of servers to be queried")
+    parser.add_argument('--d', type=int, default=50, help="percentage of servers to be queried")
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
     
