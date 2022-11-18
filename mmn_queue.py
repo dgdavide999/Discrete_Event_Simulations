@@ -115,13 +115,13 @@ class Completion(Event):
 def main():
     # command line option
     parser = argparse.ArgumentParser()
-    parser.add_argument('--lambd', type=float, default=0.99)
+    parser.add_argument('--lambd', type=float, default=0.50)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=1_000_000)
+    parser.add_argument('--max-t', type=float, default=1_00_00)
     parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
-    parser.add_argument('--d', type=int, default=50, help="percentage of servers to be queried")
+    parser.add_argument('--d', type=int, default=10, help="percentage of servers to be queried")
     args = parser.parse_args()
     assert args.d > 0 and args.d <= 100
     
@@ -132,7 +132,7 @@ def main():
   
     # save simulation data and sampled queue's lenght in a file
     try:
-        f = open("out.txt",'w+')
+        f = open("out.txt_" + str(args.lambd),'w+')
         date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
         # W is the average time spent in the sysyem , it should be like L/lambda 
