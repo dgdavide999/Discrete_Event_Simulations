@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import re
 
-document = "out.txt"
+
+
 
 def sample():
     #sampled queue's lenght
@@ -46,10 +47,11 @@ for lambd in ["0.5", "0.9", "0.95", "0.99"]:
         sim_data = file.readlines(0)
         sim_metadata = sim_data[0].split(" ")
         n = int(sim_metadata[5])
-        W = sim_data[2].split(" ")
+        
+        '''W = sim_data[2].split(" ")
         W = W[6]
         expectation = sim_data[3].split(" ")
-        expectation = expectation[6]
+        expectation = expectation[6]'''
 
         percentage = []
         sample()
@@ -62,12 +64,14 @@ for lambd in ["0.5", "0.9", "0.95", "0.99"]:
     final_dict = dict()
     final_dict = average(final_dict)
 
-    print("\n\n\n", final_dict)
+    #print("\n\n\n", final_dict)
     plt.plot(final_dict.keys(), final_dict.values(), colour.pop(), label="lambda = "+ lambd)
+
+title = sim_data[0].split(" ")
+plt.title(title[14] + " choice")
 plt.legend(loc = "upper right")
-plt.title(sim_metadata[0] + " " + sim_metadata[1]+ " "+sim_metadata[2])
-plt.xlabel('queues lenght')
-plt.ylabel('percentage fullness')
+plt.xlabel('Queue length')
+plt.ylabel('Fraction of queues with at least that size')
 plt.xlim(0, 14)
 lenght_tiks = [0, 2, 4, 6, 8, 10, 12 ,14]
 percentage_tiks = [0, 0.2, 0.4, 0.6, 0.8, 1]
