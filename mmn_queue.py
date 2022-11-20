@@ -116,7 +116,7 @@ def main():
     parser.add_argument('--lambd', type=float, default=0.50)
     parser.add_argument('--mu', type=float, default=1)
     parser.add_argument('--max-t', type=float, default=10_000)
-    parser.add_argument('--n', type=int, default=20)
+    parser.add_argument('--n', type=int, default=10)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
     parser.add_argument('--d', type=int, default=10, help="percentage of servers to be queried")
