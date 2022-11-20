@@ -29,9 +29,7 @@ class MMN(Simulation):
         self.mu = mu  # probability of finishing a job
         self.arrival_rate = lambd 
         self.completion_rate = mu
-        self.d = int(round(n/100*d, 0))  # percentage of queues to be monitored
-        if self.d == 0:
-            self.d = 1
+        self.d = d  # number of queues to be checked in supermarket
         for _ in range(n):
             self.running.append(None)
             self.queues.append(collections.deque())  # FIFO queue of the system
@@ -117,13 +115,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--lambd', type=float, default=0.50)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=1_00_00)
-    parser.add_argument('--n', type=int, default=10)
+    parser.add_argument('--max-t', type=float, default=10_000)
+    parser.add_argument('--n', type=int, default=20)
     parser.add_argument('--csv', help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
     parser.add_argument('--d', type=int, default=10, help="percentage of servers to be queried")
     args = parser.parse_args()
-    assert args.d > 0 and args.d <= 100
+    assert args.d > 0 and args.d <= args.n
     
     # MMN simulation
     sim = MMN(args.lambd, args.mu, args.n, args.d)
