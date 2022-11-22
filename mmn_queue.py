@@ -40,7 +40,7 @@ class MMN(Simulation):
         min_index = randint(0, self.n-1)
         min = self.queue_len(min_index)
 
-        for _ in range(self.d):  # searching for the empiest queue among the d monitored
+        for _ in range(self.d-1):  # searching for the empiest queue among the d monitored
             temp_index = randint(0, self.n-1)
             temp = self.queue_len(temp_index)
             if min > temp:
