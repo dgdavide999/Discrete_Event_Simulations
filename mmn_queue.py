@@ -35,7 +35,7 @@ class MMN(Simulation):
             self.queues.append(collections.deque())  # FIFO queue of the system
         self.schedule(expovariate(lambd * self.n), Arrival(0, 0))  # first job 
         # lambd moltiplicato per n 'couse? TODO
-
+    
     def supermarket(self):
         min_index = randint(0, self.n-1)
         min = self.queue_len(min_index)
@@ -47,7 +47,10 @@ class MMN(Simulation):
                 min = temp
                 min_index = temp_index
         return min_index
-
+    '''
+    def supermarket(self):
+        return randint(0, self.n-1)
+    '''
     def schedule_arrival(self, job_id):
         # schedule the arrival following an exponential distribution,
         # to compensate the number of queues the arrival time should depend also on "n
