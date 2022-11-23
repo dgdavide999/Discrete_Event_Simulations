@@ -41,8 +41,7 @@ def average(final_dict):
 #Main
 colour = ['b', 'r', 'darkorange', 'gold', 'g']
 for lambd in ["0.5", "0.9", "0.95", "0.99"]:
-    try:
-        file = open("out.txt_"+lambd, 'r')
+    with open("out.txt_"+lambd, 'r') as file:
         #simulation data
         sim_data = file.readlines(0)
         sim_metadata = sim_data[0].split(" ")
@@ -56,11 +55,6 @@ for lambd in ["0.5", "0.9", "0.95", "0.99"]:
         percentage = []
         sample()
         
-    except Exception as e:
-        print(e)
-    finally:
-        file.close()
-
     final_dict = dict()
     final_dict = average(final_dict)
 

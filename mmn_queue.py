@@ -132,8 +132,7 @@ def main():
     completions = sim.completions
   
     # save simulation data and sampled queue's lenght in a file
-    try:
-        f = open("out.txt_" + str(args.lambd),'w+')
+    with open("out.txt_"+ str(args.lambd),'w+') as f:
         date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
         # W is the average time spent in the sysyem , it should be like L/lambda 
@@ -147,21 +146,13 @@ def main():
         for t, leng in sim.sample_list:
             print("time:", round(t, 0), " number of events in the queue", leng, file=f)
         print("\n\n", file=f)
-    except Exception as e:
-        print(e)
-    finally:
-        f.close()
 
     # save a log in a given file
     if args.csv is not None:
-        try:
-            with open(args.csv, 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(["lambda:",args.lambd, " mu:",args.mu, " max_t:",args.max_t, " W:",W, f" Theoretical expectation: {1 / (1 - args.lambd)}" ])
-        except Exception as e:
-                print(e)
-        finally:
-            f.close()
+        with open(args.csv, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["lambda:",args.lambd, " mu:",args.mu, " max_t:",args.max_t, " W:",W, f" Theoretical expectation: {1 / (1 - args.lambd)}" ])
+ 
 
 if __name__ == '__main__':
     main()
