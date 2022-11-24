@@ -14,7 +14,7 @@ from typing import Optional, List
 # It should be trivial to install (e.g., apt install python3-humanfriendly or conda/pip install humanfriendly).
 from humanfriendly import format_timespan, parse_size, parse_timespan
 
-from discrete_event_sim_redacted import Simulation, Event
+from discrete_event_sim import Simulation, Event
 
 
 def exp_rv(mean):
