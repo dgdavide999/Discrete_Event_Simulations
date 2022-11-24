@@ -134,6 +134,7 @@ class Node:
         self.current_upload: Optional[TransferComplete] = None
         self.current_download: Optional[TransferComplete] = None
 
+    #TODO
     def find_block_to_back_up(self):
         """Returns the block id of a block that needs backing up, or None if there are none."""
 
@@ -144,6 +145,7 @@ class Node:
                 return ...
         return None
 
+    #TODO
     def schedule_next_upload(self, sim: Backup):
         """Schedule the next upload, if any."""
 
@@ -174,6 +176,7 @@ class Node:
                 ...
                 return
 
+    #TODO
     def schedule_next_download(self, sim: Backup):
         """Schedule the next download, if any."""
 
@@ -222,7 +225,7 @@ class NodeEvent(Event):
         """Must be implemented by subclasses."""
         raise NotImplementedError
 
-
+#TODO
 class Online(NodeEvent):
     """A node goes online."""
 
@@ -346,7 +349,7 @@ class BlockBackupComplete(TransferComplete):
         owner.backed_up_blocks[self.block_id] = peer
         peer.remote_blocks_held[owner] = self.block_id
 
-
+#TODO
 class BlockRestoreComplete(TransferComplete):
     def update_block_state(self):
         owner = self.downloader
