@@ -28,8 +28,7 @@ class DataLost(Exception):
 
 
 class Backup(Simulation):
-    """Backup simulation.
-    """
+    """Backup simulation."""
 
     # type annotations for `Node` are strings here to allow a forward declaration:
     # https://stackoverflow.com/questions/36193540/self-reference-or-forward-reference-of-type-annotations-in-python
