@@ -157,7 +157,7 @@ class Node:
         for peer, block_id in self.remote_blocks_held.items():
             # if the block is not present locally and the peer is online and not downloading anything currently, then
             # schedule the restore from self to peer of block_id
-            if peer.online and self.current_download is None and not peer.local_blocks[block_id]:
+            if peer.online and peer.current_download is None and not peer.local_blocks[block_id]:
                 sim.schedule_transfer(self, peer, block_id, restore=True)   #cop
                 return  # we have found our upload, we stop
 
