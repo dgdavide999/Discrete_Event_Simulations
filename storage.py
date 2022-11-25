@@ -140,8 +140,8 @@ class Node:
         # find a block that we have locally but not remotely
         # check `enumerate` and `zip`at https://docs.python.org/3/library/functions.html
         for block_id, (held_locally, peer) in enumerate(zip(self.local_blocks, self.backed_up_blocks)):
-            if ... and ... is None:
-                return ...
+            if held_locally == True and peer is None:
+                return block_id
         return None
 
     #TODO
@@ -157,8 +157,8 @@ class Node:
         for peer, block_id in self.remote_blocks_held.items():
             # if the block is not present locally and the peer is online and not downloading anything currently, then
             # schedule the restore from self to peer of block_id
-            if ... and ... is None and not peer.local_blocks[block_id]:
-                ...
+            if peer.online and self.current_download is None and not peer.local_blocks[block_id]:
+                sim.schedule_transfer(self, peer, block_id, restore=True)   #cop
                 return  # we have found our upload, we stop
 
         # try to back up a block on a locally held remote node
@@ -170,9 +170,9 @@ class Node:
         for peer in sim.nodes:
             # if the peer is not self, is online, is not among the remote owners, has enough space and is not
             # downloading anything currently, schedule the backup of block_id from self to peer
-            if (peer is not self and ... and peer not in ... and peer.current_download is None
-                    and peer.free_space >= ...):
-                ...
+            if (peer is not self and peer.online and peer not in remote_owners and peer.current_download is None
+                    and peer.free_space >= self.block_size):
+                sim.schedule_transfer(self, peer, block_id, restore=False)     #cop
                 return
 
     #TODO
@@ -188,17 +188,16 @@ class Node:
 
         # first find if we have a missing block to restore
         for block_id, (held_locally, peer) in enumerate(zip(self.local_blocks, self.backed_up_blocks)):
-            if not ... and peer is not None and ... and ... is None:
-                ...
+            if not held_locally and peer is not None and peer.online and peer.current_upload is None:   #cop
+                sim.schedule_transfer(peer, self, block_id, restore=True)   #cop
                 return  # we are done in this case
 
         # try to back up a block for a remote node
         for peer in sim.nodes:
-            if (peer is not self and ... and ... is None and peer not in ...
-                    and self.free_space >= ...):
+            if (peer is not self and peer.online and peer.current_upload is None and peer not in self.remote_blocks_held
+                    and self.free_space >= peer.block_size):
                 block_id = peer.find_block_to_back_up()
                 if block_id is not None:
-                    ...
                     return
 
     def __hash__(self):
@@ -234,10 +233,10 @@ class Online(NodeEvent):
             return
         node.online = True
         # schedule next upload and download
-        ...
-        ...
+        node.schedule_next_upload(sim)
+        node.schedule_next_download(sim)
         # schedule the next offline event
-        ...
+        sim.schedule(exp_rv(self.node.average_uptime), Offline(node))   #forse
 
 
 class Recover(Online):
@@ -354,7 +353,8 @@ class BlockRestoreComplete(TransferComplete):
         owner = self.downloader
         owner.local_blocks[self.block_id] = True
         if sum(owner.local_blocks) == owner.k:  # we have exactly k local blocks, we have all of them then
-            ...
+            owner.backed_up_blocks[self.block_id] = None  # we don't need to back up this block anymore
+            
 
 
 def main():
