@@ -140,7 +140,7 @@ class Node:
         # find a block that we have locally but not remotely
         # check `enumerate` and `zip`at https://docs.python.org/3/library/functions.html
         for block_id, (held_locally, peer) in enumerate(zip(self.local_blocks, self.backed_up_blocks)):
-            if held_locally == True and peer is None:
+            if held_locally and peer is None:
                 return block_id
         return None
 
