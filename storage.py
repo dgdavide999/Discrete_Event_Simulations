@@ -28,16 +28,14 @@ class DataLost(Exception):
 class Backup(Simulation):
     """Backup simulation."""
 
-    # type annotations for `Node` are strings here to allow a forward declaration:
-    # https://stackoverflow.com/questions/36193540/self-reference-or-forward-reference-of-type-annotations-in-python
     def __init__(self, nodes: List['Node']):
-        super().__init__()  # call the __init__ method of parent class
+        super().__init__()  
         self.nodes = nodes
 
         # we add to the event queue the first event of each node going online and of failing
         for node in nodes:
             self.schedule(node.arrival_time, Online(node))
-            self.schedule(node.arrival_time + exp_rv(node.average_lifetime), Fail(node))
+            self.schedule(node.arrival_time + exp_rv(node.average_lifetime), Fail(node)) #defines randomly when the node fails
 
     def schedule_transfer(self, uploader: 'Node', downloader: 'Node', block_id: int, restore: bool):
         """Helper function called by `Node.schedule_next_upload` and `Node.schedule_next_download`.
@@ -169,7 +167,7 @@ class Node:
             # downloading anything currently, schedule the backup of block_id from self to peer
             if (peer is not self and peer.online and peer not in remote_owners and peer.current_download is None
                     and peer.free_space >= self.block_size):
-                sim.schedule_transfer(self, peer, block_id, restore=False)     #cop
+                sim.schedule_transfer(self, peer, block_id, restore=False)
                 return
 
     #TODO
@@ -185,8 +183,8 @@ class Node:
 
         # first find if we have a missing block to restore
         for block_id, (held_locally, peer) in enumerate(zip(self.local_blocks, self.backed_up_blocks)):
-            if not held_locally and peer is not None and peer.online and peer.current_upload is None:   #cop
-                sim.schedule_transfer(peer, self, block_id, restore=True)   #cop
+            if not held_locally and peer is not None and peer.online and peer.current_upload is None:
+                sim.schedule_transfer(peer, self, block_id, restore=True)
                 return  # we are done in this case
 
         # try to back up a block for a remote node
@@ -224,15 +222,16 @@ class Online(NodeEvent):
     """A node goes online."""
 
     def process(self, sim: Backup):
+        #why define a new variable?
         node = self.node
-        if node.online or node.failed:
+        if node.online or node.failed: #if this node is failed it will wait Recover
             return
         node.online = True
         # schedule next upload and download
         node.schedule_next_upload(sim)
         node.schedule_next_download(sim)
         # schedule the next offline event
-        sim.schedule(exp_rv(self.node.average_uptime), Offline(node))   #forse
+        sim.schedule(exp_rv(node.average_uptime), Offline(node))
 
 class Recover(Online):
     """A node goes online after recovering from a failure."""
@@ -288,11 +287,11 @@ class Fail(Disconnection):
         node = self.node
         node.failed = True
         node.local_blocks = [False] * node.n  # lose all local data
-        # lose all remote data
+        # lose all remote data (other nodes' backup)
         for owner, block_id in node.remote_blocks_held.items():
             owner.backed_up_blocks[block_id] = None
             if owner.online and owner.current_upload is None:
-                owner.schedule_next_upload(sim)  # this node may want to back up the missing block
+                owner.schedule_next_upload(sim)  # this node may want to back up the missing block, how does he know that this backup is lost? are we simulating an heartbeat?
         node.remote_blocks_held.clear()
         # schedule the next online and recover events
         recover_time = exp_rv(node.average_recover_time)
@@ -346,7 +345,6 @@ class BlockRestoreComplete(TransferComplete):
         if sum(owner.local_blocks) == owner.k:  # we have exactly k local blocks, we have all of them then
             owner.backed_up_blocks[self.block_id] = None  # we don't need to back up this block anymore
             
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration file")
@@ -375,9 +373,10 @@ def main():
     nodes = []  # we build the list of nodes to pass to the Backup class
     for node_class in config.sections():
         class_config = config[node_class]
-        # list comprehension: https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+        #list that contains every info of the current node class 
         cfg = [parse(class_config[name]) for name, parse in parsing_functions]
         # the `callable(p1, p2, *args)` idiom is equivalent to `callable(p1, p2, args[0], args[1], ...)
+        # istantiate "number" Nodes of type node_class
         nodes.extend(Node(f"{node_class}-{i}", *cfg) for i in range(class_config.getint('number')))
     sim = Backup(nodes)
     sim.run(parse_timespan(args.max_t))
