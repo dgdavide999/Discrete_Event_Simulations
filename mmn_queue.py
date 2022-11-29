@@ -15,27 +15,35 @@ from discrete_event_sim import Simulation, Event
 
 class MMN(Simulation):
 
-    def __init__(self, lambd, mu, n, d):
-        # extend this to make it work for multiple queues
+    def __init__(self, lambd, mu, n, d, sampling_rate):
         super().__init__()
-        # check if there is at least one server
-        assert n > 0
+        assert n > 0  # check if there is at least one server
+
+        # data structures for Events
         self.running = []  # if not None, the id of the running job
-        self.queues = [] # list of server queue
+        self.queues = []  # list of server queue
         self.arrivals = {}  # dictionary mapping job id to arrival time
         self.completions = {}  # dictionary mapping job id to completion time
+
+        # simulation parameters
         self.lambd = lambd  # probability of a new job entry
         self.n = n  # number of servers
         self.mu = mu  # probability of finishing a job
         self.arrival_rate = lambd 
         self.completion_rate = mu
         self.d = d  # number of queues to be checked in supermarket
+
+        # sampling data
+        self.last_sample_t = 0
+        self.sampling_rate = sampling_rate
+        self.sample_list = []  # list of queue lenght samples
+
         for _ in range(n):
             self.running.append(None)
             self.queues.append(collections.deque())  # FIFO queue of the system
         self.schedule(expovariate(lambd * self.n), Arrival(0, 0))  # first job 
-        # lambd moltiplicato per n 'couse? TODO
     
+
     def supermarket(self):
         min_index = randint(0, self.n-1)
         min = self.queue_len(min_index)
@@ -47,10 +55,8 @@ class MMN(Simulation):
                 min = temp
                 min_index = temp_index
         return min_index
-    '''
-    def supermarket(self):
-        return randint(0, self.n-1)
-    '''
+
+
     def schedule_arrival(self, job_id):
         # schedule the arrival following an exponential distribution,
         # to compensate the number of queues the arrival time should depend also on "n
@@ -66,10 +72,13 @@ class MMN(Simulation):
         return (self.running[server_id] is not None) + len(self.queues[server_id])
 
     def sampling(self):
-        sample_list = []
+        if self.t - self.last_sample_t < self.sampling_rate:
+            return
+        sample = []
         for i in range(self.n):
-            sample_list.append(self.queue_len(i))
-        return sample_list
+            sample.append(self.queue_len(i))
+        self.sample_list.append([self.t, sample])
+        
 
 
 class Arrival(Event):
@@ -77,7 +86,7 @@ class Arrival(Event):
     def __init__(self, server_id, job_id):
         super().__init__(server_id)
         self.id = job_id
-        #print(self.id, server_id, "arrival")       DEBUG
+
 
     def process(self, sim: MMN):
         # set the arrival time of the job
@@ -91,13 +100,14 @@ class Arrival(Event):
             sim.queues[self.server_id].append(self.id)
         # schedule the arrival of the next job (this is where we create jobs)
         sim.schedule_arrival(self.id + 1)
+        sim.sampling()
+
 
 
 class Completion(Event):
     def __init__(self, server_id, job_id):
         super().__init__(server_id)
-        self.id = job_id  # currently unused, might be useful when extending
-        #print(self.id, server_id, "complition")       DEBUG
+        self.id = job_id
 
     def process(self, sim: MMN):
         assert sim.running[self.server_id] is not None
@@ -111,6 +121,8 @@ class Completion(Event):
             sim.schedule_completion(self.server_id, job)
         else:
             sim.running[self.server_id] = None
+        sim.sampling()
+
 
 
 def main():
@@ -127,7 +139,7 @@ def main():
     assert args.d > 0 and args.d <= args.n
     
     # MMN simulation
-    sim = MMN(args.lambd, args.mu, args.n, args.d)
+    sim = MMN(args.lambd, args.mu, args.n, args.d, args.sample_rate)
     sim.run(args.max_t, args.sample_rate)
     completions = sim.completions
   
@@ -135,11 +147,10 @@ def main():
     with open("out.txt_"+ str(args.lambd),'w+') as f:
         date_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         print("Simulation:",date_time, "\tn =", args.n, "\tlambd =", args.lambd, "\tmu =", args.mu, "\td =", args.d, "\tmax_t =", args.max_t, "\n", file=f)
-        # W is the average time spent in the sysyem , it should be like L/lambda 
-        # (L is the average queue lenght)
+        
         W = (sum(completions.values()) - sum(sim.arrivals[job_id] for job_id in completions)) / len(completions)
-        #WARNING: changing the format will mess up plot creation
-        #space before \n make easier parsing
+        # WARNING: changing the format will mess up plot creation
+        # space before \n make easier parsing
         print(f"Average time spent in the system: {W} ", file=f)
         print(f"Theoretical expectation for random server choice: {1 / (1 - args.lambd)} \n", file=f)
         
