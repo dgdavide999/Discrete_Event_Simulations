@@ -291,7 +291,8 @@ class Fail(Disconnection):
         for owner, block_id in node.remote_blocks_held.items():
             owner.backed_up_blocks[block_id] = None
             if owner.online and owner.current_upload is None:
-                owner.schedule_next_upload(sim)  # this node may want to back up the missing block, how does he know that this backup is lost? are we simulating an heartbeat?
+                owner.schedule_next_upload(sim) 
+                 # this node may want to back up the missing block, how does he know that this backup is lost? are we simulating an heartbeat?
         node.remote_blocks_held.clear()
         # schedule the next online and recover events
         recover_time = exp_rv(node.average_recover_time)
