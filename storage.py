@@ -222,7 +222,6 @@ class Online(NodeEvent):
     """A node goes online."""
 
     def process(self, sim: Backup):
-        #why define a new variable?
         node = self.node
         if node.online or node.failed: #if this node is failed it will wait Recover
             return
@@ -292,7 +291,6 @@ class Fail(Disconnection):
             owner.backed_up_blocks[block_id] = None
             if owner.online and owner.current_upload is None:
                 owner.schedule_next_upload(sim) 
-                 # this node may want to back up the missing block, how does he know that this backup is lost? are we simulating an heartbeat?
         node.remote_blocks_held.clear()
         # schedule the next online and recover events
         recover_time = exp_rv(node.average_recover_time)
