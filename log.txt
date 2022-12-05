@@ -1,0 +1,27 @@
+n:,10, d:,1, lambda:,0.5, mu:,1, max_t:,1000000, W:,2.000102636558352, Theoretical expectation: 2.0
+n:,10, d:,1, lambda:,0.9, mu:,1, max_t:,1000000, W:,9.977195609851059, Theoretical expectation: 10.000000000000002
+n:,10, d:,1, lambda:,0.95, mu:,1, max_t:,1000000, W:,20.080390667103952, Theoretical expectation: 19.999999999999982
+n:,10, d:,1, lambda:,0.99, mu:,1, max_t:,1000000, W:,97.21159508029618, Theoretical expectation: 99.99999999999991
+
+n:,30,d:,1,lambda:,0.5, mu:,1, max_t:,1000000, W:,2.0011973823461053, Theoretical expectation: 2.0
+killed
+
+n:,20,d:,1,lambda:,0.5, mu:,1, max_t:,1000000, W:,1.999924882340869, Theoretical expectation: 2.0
+n:,20,d:,1,lambda:,0.9, mu:,1, max_t:,1000000, W:,10.004837085093518, Theoretical expectation: 10.000000000000002
+n:,20,d:,1,lambda:,0.95, mu:,1, max_t:,1000000, W:,19.691920941984066, Theoretical expectation: 19.999999999999982
+n:,20,d:,1,lambda:,0.99, mu:,1, max_t:,1000000, W:,98.52762848018669, Theoretical expectation: 99.99999999999991
+
+n:,10,d:,2,lambda:,0.5, mu:,1, max_t:,1000000, W:,1.352620161943183, Theoretical expectation: 2.0
+n:,10,d:,2,lambda:,0.9, mu:,1, max_t:,1000000, W:,3.147716419057929, Theoretical expectation: 10.000000000000002
+n:,10,d:,2,lambda:,0.95, mu:,1, max_t:,1000000, W:,4.595384699122842, Theoretical expectation: 19.999999999999982
+n:,10,d:,2,lambda:,0.99, mu:,1, max_t:,1000000, W:,12.611703690277528, Theoretical expectation: 99.99999999999991
+
+n:,10,d:,5,lambda:,0.5, mu:,1, max_t:,1000000, W:,1.1260733755093624, Theoretical expectation: 2.0
+n:,10,d:,5,lambda:,0.9, mu:,1, max_t:,1000000, W:,2.315244690311362, Theoretical expectation: 10.000000000000002
+n:,10,d:,5,lambda:,0.95, mu:,1, max_t:,1000000, W:,3.4389835752805085, Theoretical expectation: 19.999999999999982
+n:,10,d:,5,lambda:,0.99, mu:,1, max_t:,1000000, W:,11.33288128482207, Theoretical expectation: 99.99999999999991
+
+n:,10,d:,10,lambda:,0.5, mu:,1, max_t:,1000000, W:,1.067195427966815, Theoretical expectation: 2.0
+n:,10,d:,10,lambda:,0.9, mu:,1, max_t:,1000000, W:,2.138134333919034, Theoretical expectation: 10.000000000000002
+n:,10,d:,10,lambda:,0.95, mu:,1, max_t:,1000000, W:,3.162596872498906, Theoretical expectation: 19.999999999999982
+n:,10,d:,10,lambda:,0.99, mu:,1, max_t:,1000000, W:,11.554458700921293, Theoretical expectation: 99.99999999999991

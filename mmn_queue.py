@@ -130,9 +130,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--lambd', type=float, default=0.50)
     parser.add_argument('--mu', type=float, default=1)
-    parser.add_argument('--max-t', type=float, default=10_000)
+    parser.add_argument('--max-t', type=float, default=1_000_000)
     parser.add_argument('--n', type=int, default=10)
-    parser.add_argument('--csv', help="CSV file in which to store results")
+    parser.add_argument('--csv', default="log.txt", help="CSV file in which to store results")
     parser.add_argument('--sample_rate', type=int, default=100, help="queue lenght sampling rate based in simulation time")  # queue lenght sampling
     parser.add_argument('--d', type=int, default=10, help="percentage of servers to be queried")
     args = parser.parse_args()
@@ -162,7 +162,7 @@ def main():
     if args.csv is not None:
         with open(args.csv, 'a', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(["lambda:",args.lambd, " mu:",args.mu, " max_t:",args.max_t, " W:",W, f" Theoretical expectation: {1 / (1 - args.lambd)}" ])
+            writer.writerow(["n:",args.n,"d:",args.d,"lambda:",args.lambd, " mu:",args.mu, " max_t:",args.max_t, " W:",W, f" Theoretical expectation: {1 / (1 - args.lambd)}" ])
  
 
 if __name__ == '__main__':
