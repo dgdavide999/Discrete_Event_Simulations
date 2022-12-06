@@ -1,8 +1,0 @@
-Simulation: 05/12/2022 15:15:45 	n = 10 	lambd = 0.99 	mu = 1 	d = 10 	max_t = 1000000 
-
-Average time spent in the system: 11.554458700921293 
-Theoretical expectation for random server choice: 99.99999999999991 
-
-
-
-

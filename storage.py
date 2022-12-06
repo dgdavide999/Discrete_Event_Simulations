@@ -176,7 +176,7 @@ class Node:
 
         assert self.online
 
-        sim.log_info(f"schedule_next_download on {self}")
+       # sim.log_info(f"schedule_next_download on {self}")
 
         if self.current_download is not None:
             return
@@ -193,6 +193,7 @@ class Node:
                     and self.free_space >= peer.block_size):
                 block_id = peer.find_block_to_back_up()
                 if block_id is not None:
+                    sim.schedule_transfer(peer, self, block_id, restore=False)
                     return
 
     def __hash__(self):

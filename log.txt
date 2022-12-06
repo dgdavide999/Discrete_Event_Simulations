@@ -25,3 +25,8 @@ n:,10,d:,10,lambda:,0.5, mu:,1, max_t:,1000000, W:,1.067195427966815, Theoretica
 n:,10,d:,10,lambda:,0.9, mu:,1, max_t:,1000000, W:,2.138134333919034, Theoretical expectation: 10.000000000000002
 n:,10,d:,10,lambda:,0.95, mu:,1, max_t:,1000000, W:,3.162596872498906, Theoretical expectation: 19.999999999999982
 n:,10,d:,10,lambda:,0.99, mu:,1, max_t:,1000000, W:,11.554458700921293, Theoretical expectation: 99.99999999999991
+
+n:,10,d:,10,lambda:,0.5, mu:,1, max_t:,100000, W:,1.0663000975496886, Theoretical expectation: 2.0
+n:,10,d:,10,lambda:,0.9, mu:,1, max_t:,100000, W:,2.154608773983159, Theoretical expectation: 10.000000000000002
+n:,10,d:,10,lambda:,0.95, mu:,1, max_t:,100000, W:,3.1403704469943516, Theoretical expectation: 19.999999999999982
+n:,10,d:,10,lambda:,0.99, mu:,1, max_t:,100000, W:,9.048020247893348, Theoretical expectation: 99.99999999999991

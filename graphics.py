@@ -1,9 +1,6 @@
 import matplotlib.pyplot as plt
 import re
 
-
-
-
 def sample():
     #sampled queue's lenght
     for line in sim_data[5:]:
@@ -47,11 +44,6 @@ for lambd in ["0.5", "0.9", "0.95", "0.99"]:
         sim_metadata = sim_data[0].split(" ")
         n = int(sim_metadata[5])
         
-        '''W = sim_data[2].split(" ")
-        W = W[6]
-        expectation = sim_data[3].split(" ")
-        expectation = expectation[6]'''
-
         percentage = []
         sample()
         
