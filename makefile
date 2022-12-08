@@ -13,7 +13,7 @@ graphics:
 	$(EX) $(GRA)
 
 storage:
-	$(EX) $(STO) client_server.cfg --verbose
+	$(EX) $(STO) configurations/client_server.cfg --verbose
 
 clean:
 	for number in 0.5 0.9 0.95 0.99 ; do \

@@ -160,7 +160,7 @@ class Node:
         block_id = self.find_block_to_back_up()
         if block_id is None:
             return
-        sim.log_info(f"{self} is looking for somebody to back up block {block_id}")
+       # sim.log_info(f"{self} is looking for somebody to back up block {block_id}")
         remote_owners = set(node for node in self.backed_up_blocks if node is not None)  # nodes having one block
         for peer in sim.nodes:
             # if the peer is not self, is online, is not among the remote owners, has enough space and is not
@@ -176,20 +176,17 @@ class Node:
 
         assert self.online
 
-       # sim.log_info(f"schedule_next_download on {self}")
+        sim.log_info(f"schedule_next_download on {self}")
 
         if self.current_download is not None:
             return
 
         # first find if we have a missing block to restore
         for block_id, (held_locally, peer) in enumerate(zip(self.local_blocks, self.backed_up_blocks)):
-            if not held_locally and peer is not None:
-                if peer.online and peer.current_upload is None:
-                    sim.schedule_transfer(peer, self, block_id, restore=True)
+            if not held_locally and peer is not None and peer.online and peer.current_upload is None:
+                sim.schedule_transfer(peer, self, block_id, restore=True)
                 return  # we are done in this case
-            else:
-                assert peer is None, f"no peer for block {block_id}"
-
+        
         # try to back up a block for a remote node
         for peer in sim.nodes:
             if (peer is not self and peer.online and peer.current_upload is None and peer not in self.remote_blocks_held
@@ -339,6 +336,7 @@ class BlockBackupComplete(TransferComplete):
         assert peer.free_space >= 0
         owner.backed_up_blocks[self.block_id] = peer
         peer.remote_blocks_held[owner] = self.block_id
+        print(f"backup from {owner} to {peer}")
 
 #TODO
 class BlockRestoreComplete(TransferComplete):
@@ -347,6 +345,7 @@ class BlockRestoreComplete(TransferComplete):
         owner.local_blocks[self.block_id] = True
         if sum(owner.local_blocks) == owner.k:  # we have exactly k local blocks, we have all of them then
             owner.backed_up_blocks[self.block_id] = None  # we don't need to back up this block anymore
+        print(f"restore{owner} from {self.uploader}???")
             
 def main():
     parser = argparse.ArgumentParser()
