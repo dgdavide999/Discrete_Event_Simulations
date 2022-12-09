@@ -169,13 +169,15 @@ class Node:
         block_id = self.find_block_to_back_up()
         if block_id is None:
             return
-       # sim.log_info(f"{self} is looking for somebody to back up block {block_id}")
+        sim.log_info(f"{self} is looking for somebody to back up block {block_id}")
         remote_owners = set(node for node in self.backed_up_blocks if node is not None)  # nodes having one block
         for peer in sim.nodes:
             # if the peer is not self, is online, is not among the remote owners, has enough space and is not
             # downloading anything currently, schedule the backup of block_id from self to peer
             if (peer is not self and peer.online and peer not in remote_owners and peer.current_download is None
-                    and peer.free_space >= self.block_size and re.sub('\-(.*)','',peer.name) not in self.access_denied):
+                    and peer.free_space >= self.block_size 
+                    and re.sub('\-(.*)','',peer.name) not in self.access_denied
+                    ):
                 sim.schedule_transfer(self, peer, block_id, restore=False)
                 return
 
@@ -185,8 +187,6 @@ class Node:
 
         assert self.online
 
-        sim.log_info(f"schedule_next_download on {self}")
-
         if self.current_download is not None:
             return
 
@@ -194,15 +194,19 @@ class Node:
         for block_id, (held_locally, peer) in enumerate(zip(self.local_blocks, self.backed_up_blocks)):
             if not held_locally and peer is not None and peer.online and peer.current_upload is None:
                 sim.schedule_transfer(peer, self, block_id, restore=True)
+                sim.log_info(f"schedule_next_download on {self}")
                 return  # we are done in this case
         
         # try to back up a block for a remote node
         for peer in sim.nodes:
             if (peer is not self and peer.online and peer.current_upload is None and peer not in self.remote_blocks_held
-                    and self.free_space >= peer.block_size and re.sub('\-(.*)','',peer.name) not in self.access_denied):
+                    and self.free_space >= peer.block_size 
+                    and re.sub('\-(.*)','',peer.name) not in self.access_denied
+                    ):
                 block_id = peer.find_block_to_back_up()
                 if block_id is not None:
                     sim.schedule_transfer(peer, self, block_id, restore=False)
+                    sim.log_info(f"schedule_next_download on {self}")
                     return
 
     def __hash__(self):
@@ -346,7 +350,7 @@ class BlockBackupComplete(TransferComplete):
         assert peer.free_space >= 0
         owner.backed_up_blocks[self.block_id] = peer
         peer.remote_blocks_held[owner] = self.block_id
-        print(f"backup from {owner} to {peer}")
+        print(f"backup from {owner} to {peer} block {self.block_id}")
 
 #TODO
 class BlockRestoreComplete(TransferComplete):
@@ -354,8 +358,8 @@ class BlockRestoreComplete(TransferComplete):
         owner = self.downloader
         owner.local_blocks[self.block_id] = True
         if sum(owner.local_blocks) == owner.k:  # we have exactly k local blocks, we have all of them then
-            owner.backed_up_blocks[self.block_id] = None  # we don't need to back up this block anymore
-        print(f"restore{owner} from {self.uploader}???")
+            owner.local_blocks = [True] * owner.n
+        print(f"restore {owner} from {self.uploader} block {self.block_id}")
             
 def main():
     parser = argparse.ArgumentParser()
@@ -392,6 +396,11 @@ def main():
     sim = Backup(nodes)
     sim.run(parse_timespan(args.max_t))
     sim.log_info(f"Simulation over")
+    for node in nodes:
+        print(f"{node}: {sum(node.local_blocks)} local blocks, "
+                         f"{sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks, "
+                         f"{len(node.remote_blocks_held)} remote blocks held"
+                         f"  online {node.online}, failed {node.failed}")
 
 if __name__ == '__main__':
     main()
