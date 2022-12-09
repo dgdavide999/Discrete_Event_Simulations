@@ -4,6 +4,7 @@ import argparse
 import configparser
 import logging
 import random
+import re
 from dataclasses import dataclass
 from random import expovariate
 from typing import Optional, List
@@ -95,6 +96,8 @@ class Node:
     average_recover_time: float  # average time after a data loss
 
     arrival_time: float  # time at which the node will come online
+    
+    without_access: str
 
     def __post_init__(self):
         """Compute other data dependent on config values and set up initial state."""
@@ -127,6 +130,12 @@ class Node:
         # current uploads and downloads, stored as a reference to the relative TransferComplete event
         self.current_upload: Optional[TransferComplete] = None
         self.current_download: Optional[TransferComplete] = None
+        try:
+            self.access_denied = eval(self.without_access)
+        except SyntaxError:
+            print("sintax error in configuration file, without_access must be a list")
+            exit()
+        
 
     #TODO
     def find_block_to_back_up(self):
@@ -150,7 +159,7 @@ class Node:
 
         # first find if we have a backup that a remote node needs
         for peer, block_id in self.remote_blocks_held.items():
-            # if the block is not present locally and the peer is online and not downloading anything currently, then
+            # if the block is not present locally and the peer is online, if the node is accessible and not downloading anything currently, then
             # schedule the restore from self to peer of block_id
             if peer.online and peer.current_download is None and not peer.local_blocks[block_id]:
                 sim.schedule_transfer(self, peer, block_id, restore=True)
@@ -166,7 +175,7 @@ class Node:
             # if the peer is not self, is online, is not among the remote owners, has enough space and is not
             # downloading anything currently, schedule the backup of block_id from self to peer
             if (peer is not self and peer.online and peer not in remote_owners and peer.current_download is None
-                    and peer.free_space >= self.block_size):
+                    and peer.free_space >= self.block_size and re.sub('\-(.*)','',peer.name) not in self.access_denied):
                 sim.schedule_transfer(self, peer, block_id, restore=False)
                 return
 
@@ -190,7 +199,7 @@ class Node:
         # try to back up a block for a remote node
         for peer in sim.nodes:
             if (peer is not self and peer.online and peer.current_upload is None and peer not in self.remote_blocks_held
-                    and self.free_space >= peer.block_size):
+                    and self.free_space >= peer.block_size and re.sub('\-(.*)','',peer.name) not in self.access_denied):
                 block_id = peer.find_block_to_back_up()
                 if block_id is not None:
                     sim.schedule_transfer(peer, self, block_id, restore=False)
@@ -282,6 +291,7 @@ class Fail(Disconnection):
     """A node fails and loses all local data."""
 
     def process(self, sim: Backup):
+        # a offline node can have a failure
         sim.log_info(f"{self.node} fails")
         self.disconnect()
         node = self.node
@@ -367,9 +377,8 @@ def main():
         ('upload_speed', parse_size), ('download_speed', parse_size),
         ('average_uptime', parse_timespan), ('average_downtime', parse_timespan),
         ('average_lifetime', parse_timespan), ('average_recover_time', parse_timespan),
-        ('arrival_time', parse_timespan)
+        ('arrival_time', parse_timespan), ('without_access', str),
     ]
-
     config = configparser.ConfigParser()
     config.read(args.config)
     nodes = []  # we build the list of nodes to pass to the Backup class
