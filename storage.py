@@ -5,6 +5,7 @@ import configparser
 import logging
 import random
 import re
+import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from random import expovariate
 from typing import Optional, List
@@ -350,7 +351,6 @@ class BlockBackupComplete(TransferComplete):
         assert peer.free_space >= 0
         owner.backed_up_blocks[self.block_id] = peer
         peer.remote_blocks_held[owner] = self.block_id
-        print(f"backup from {owner} to {peer} block {self.block_id}")
 
 #TODO
 class BlockRestoreComplete(TransferComplete):
@@ -359,7 +359,6 @@ class BlockRestoreComplete(TransferComplete):
         owner.local_blocks[self.block_id] = True
         if sum(owner.local_blocks) == owner.k:  # we have exactly k local blocks, we have all of them then
             owner.local_blocks = [True] * owner.n
-        print(f"restore {owner} from {self.uploader} block {self.block_id}")
             
 def main():
     parser = argparse.ArgumentParser()
@@ -396,11 +395,38 @@ def main():
     sim = Backup(nodes)
     sim.run(parse_timespan(args.max_t))
     sim.log_info(f"Simulation over")
+    lost_bloks = 0
+    total_blocks = 0
     for node in nodes:
         print(f"{node}: {sum(node.local_blocks)} local blocks, "
                          f"{sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks, "
                          f"{len(node.remote_blocks_held)} remote blocks held"
                          f"  online {node.online}, failed {node.failed}")
+        
+        for i in range(node.n):
+            total_blocks += 1
+            if node.local_blocks[i] == False and node.backed_up_blocks[i] is None:
+                lost_bloks += 1
+    print(f"{node}lost blocks = {lost_bloks} of {total_blocks}\n")
+    return [total_blocks, lost_bloks]
 
 if __name__ == '__main__':
-    main()
+    lost = []
+    for _ in range(0):
+        lost.append(main())
+    print(lost)
+ 
+fig,ax = plt.subplots(1,1)
+a = [17,18]
+l = []
+for i in range(1,10):
+    l.append(i)
+ax.hist(a, bins = 10)
+ax.set_title("histogram of result")
+
+ax.set_xticks(l)
+ax.set_xlabel('marks')
+ax.set_ylabel('no. of students')
+plt.show()
+
+
