@@ -5,6 +5,7 @@ import configparser
 import logging
 import random
 import re
+import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from random import expovariate
@@ -407,26 +408,34 @@ def main():
             total_blocks += 1
             if node.local_blocks[i] == False and node.backed_up_blocks[i] is None:
                 lost_bloks += 1
-    print(f"{node}lost blocks = {lost_bloks} of {total_blocks}\n")
+    print(f"lost blocks = {lost_bloks} of {total_blocks}\n")
     return [total_blocks, lost_bloks]
 
+n_test = 20
 if __name__ == '__main__':
     lost = []
-    for _ in range(0):
+    for _ in range(n_test):
         lost.append(main())
-    print(lost)
- 
-fig,ax = plt.subplots(1,1)
-a = [17,18]
-l = []
-for i in range(1,10):
-    l.append(i)
-ax.hist(a, bins = 10)
-ax.set_title("histogram of result")
 
-ax.set_xticks(l)
-ax.set_xlabel('marks')
-ax.set_ylabel('no. of students')
+
+b = []
+for i in range(n_test+1):
+    b.append(i)
+
+vals, bins = np.histogram([], bins = b)
+width = 1
+for i in range(n_test):
+    _,vals[i] = lost[i]
+print(vals)
+fig,ax = plt.subplots(1,1)
+
+# plot histogram values as bar chart
+ax.bar(bins[:-1] + width/2, vals, width)
+ax.set_title("Number of blocks lost")
+ax.set_xticks([0,5,10,15,20])
+ax.set_yticks([10,20,30,40,50,60,70,80,90,100])
+ax.set_xlabel('simulations')
+ax.set_ylabel('no. of lost blocks')
 plt.show()
 
 
