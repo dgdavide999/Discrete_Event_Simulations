@@ -386,7 +386,7 @@ def createHistogram(lost):
     # plot histogram values as bar chart
     ax.bar(bins[:-1] + 1/2, vals, 1)
     ax.set_title("Number of blocks lost")
-    ax.set_xticks(list(range(0, 25, 5)))
+    ax.set_xticks(list(range(0, n_test+5, 5)))
     ax.set_yticks(list(range(0, 110, 10)))
     ax.set_xlabel('simulations')
     ax.set_ylabel('no. of lost blocks')
@@ -395,7 +395,7 @@ def createHistogram(lost):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration file")
-    parser.add_argument("--max-t", default="10 years")
+    parser.add_argument("--max-t", default="100 years")
     parser.add_argument("--seed", help="random seed")
     parser.add_argument("--verbose", action='store_true')
     args = parser.parse_args()
@@ -430,7 +430,7 @@ def main():
 
     return lostBlocks(nodes)
 
-n_test = 10
+n_test = 20
 if __name__ == '__main__':
     lost = []
     for _ in range(n_test):
