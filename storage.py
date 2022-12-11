@@ -364,7 +364,7 @@ class BlockRestoreComplete(TransferComplete):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration file")
-    parser.add_argument("--max-t", default="100 years")
+    parser.add_argument("--max-t", default="10 years")
     parser.add_argument("--seed", help="random seed")
     parser.add_argument("--verbose", action='store_true')
     args = parser.parse_args()
@@ -417,25 +417,18 @@ if __name__ == '__main__':
     for _ in range(n_test):
         lost.append(main())
 
+vals, bins = np.histogram([], bins = list(range(n_test+1)))
 
-b = []
-for i in range(n_test+1):
-    b.append(i)
-
-vals, bins = np.histogram([], bins = b)
-width = 1
 for i in range(n_test):
     _,vals[i] = lost[i]
 print(vals)
 fig,ax = plt.subplots(1,1)
 
 # plot histogram values as bar chart
-ax.bar(bins[:-1] + width/2, vals, width)
+ax.bar(bins[:-1] + 1/2, vals, 1)
 ax.set_title("Number of blocks lost")
 ax.set_xticks([0,5,10,15,20])
 ax.set_yticks([10,20,30,40,50,60,70,80,90,100])
 ax.set_xlabel('simulations')
 ax.set_ylabel('no. of lost blocks')
 plt.show()
-
-

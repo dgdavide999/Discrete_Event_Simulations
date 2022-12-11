@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["p2p.cfg", "--verbose"]
+            "args": ["configurations/p2p.cfg"]
         }
     ]
 }
