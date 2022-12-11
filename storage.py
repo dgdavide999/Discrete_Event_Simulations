@@ -379,17 +379,15 @@ def lostBlocks(nodes):
 # create histogram of lost blocks
 def createHistogram(lost):
     vals, bins = np.histogram([], bins = list(range(n_test+1)))
-    print(total_blocks)
     for i in range(n_test):
         vals[i] = lost[i]*100/total_blocks
-    print(vals)
     fig,ax = plt.subplots(1,1)
 
     # plot histogram values as bar chart
     ax.bar(bins[:-1] + 1/2, vals, 1)
     ax.set_title("Number of blocks lost")
-    ax.set_xticks([0,5,10,15,20])
-    ax.set_yticks([10,20,30,40,50,60,70,80,90,100])
+    ax.set_xticks(list(range(0, 25, 5)))
+    ax.set_yticks(list(range(0, 110, 10)))
     ax.set_xlabel('simulations')
     ax.set_ylabel('no. of lost blocks')
     plt.show()        
