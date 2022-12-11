@@ -430,7 +430,7 @@ def main():
 
     return lostBlocks(nodes)
 
-n_test = 1
+n_test = 10
 if __name__ == '__main__':
     lost = []
     for _ in range(n_test):
