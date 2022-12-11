@@ -19,6 +19,7 @@ from humanfriendly import format_timespan, parse_size, parse_timespan
 
 from discrete_event_sim import Simulation, Event
 
+total_blocks = 0
 
 def exp_rv(mean):
     """Return an exponential random variable with the given mean."""
@@ -397,7 +398,7 @@ def main():
     sim.run(parse_timespan(args.max_t))
     sim.log_info(f"Simulation over")
     lost_bloks = 0
-    total_blocks = 0
+    _total_blocks = 0
     for node in nodes:
         print(f"{node}: {sum(node.local_blocks)} local blocks, "
                          f"{sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks, "
@@ -405,11 +406,12 @@ def main():
                          f"  online {node.online}, failed {node.failed}")
         
         for i in range(node.n):
-            total_blocks += 1
+            _total_blocks += 1
             if node.local_blocks[i] == False and node.backed_up_blocks[i] is None:
-                lost_bloks += 1
+                _lost_bloks += 1
     print(f"lost blocks = {lost_bloks} of {total_blocks}\n")
-    return [total_blocks, lost_bloks]
+    total_blocks = _total_blocks
+    return lost_bloks
 
 n_test = 20
 if __name__ == '__main__':
@@ -419,10 +421,9 @@ if __name__ == '__main__':
 
 
 vals, bins = np.histogram([], bins = list(range(n_test+1)))
-total_blocks = lost[0][0]
 print(total_blocks)
 for i in range(n_test):
-    vals[i] = lost[i][1]*100/total_blocks
+    vals[i] = lost[i]*100/total_blocks
 print(vals)
 fig,ax = plt.subplots(1,1)
 
