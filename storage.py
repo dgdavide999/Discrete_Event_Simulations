@@ -19,8 +19,6 @@ from humanfriendly import format_timespan, parse_size, parse_timespan
 
 from discrete_event_sim import Simulation, Event
 
-total_blocks = 0
-
 def exp_rv(mean):
     """Return an exponential random variable with the given mean."""
     return expovariate(1 / mean)
@@ -361,11 +359,45 @@ class BlockRestoreComplete(TransferComplete):
         owner.local_blocks[self.block_id] = True
         if sum(owner.local_blocks) == owner.k:  # we have exactly k local blocks, we have all of them then
             owner.local_blocks = [True] * owner.n
-            
+
+# count block that get lost during the simulation
+def lostBlocks(nodes):
+    global total_blocks
+    total_blocks = nodes[0].n*len(nodes)
+    lost_bloks = 0
+    
+    # print the state of every node
+    for node in nodes:
+        print(f"{node}: {sum(node.local_blocks)} local blocks, {sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks," 
+        f"{len(node.remote_blocks_held)} remote blocks held online {node.online}, failed {node.failed}")        #DEBUG
+        for i in range(node.n):
+            if node.local_blocks[i] == False and node.backed_up_blocks[i] is None:
+                lost_bloks += 1
+    print(f"lost blocks = {lost_bloks} of {total_blocks}\n")        #DEBUG
+    return lost_bloks   
+
+# create histogram of lost blocks
+def createHistogram(lost):
+    vals, bins = np.histogram([], bins = list(range(n_test+1)))
+    print(total_blocks)
+    for i in range(n_test):
+        vals[i] = lost[i]*100/total_blocks
+    print(vals)
+    fig,ax = plt.subplots(1,1)
+
+    # plot histogram values as bar chart
+    ax.bar(bins[:-1] + 1/2, vals, 1)
+    ax.set_title("Number of blocks lost")
+    ax.set_xticks([0,5,10,15,20])
+    ax.set_yticks([10,20,30,40,50,60,70,80,90,100])
+    ax.set_xlabel('simulations')
+    ax.set_ylabel('no. of lost blocks')
+    plt.show()        
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration file")
-    parser.add_argument("--max-t", default="50 years")
+    parser.add_argument("--max-t", default="10 years")
     parser.add_argument("--seed", help="random seed")
     parser.add_argument("--verbose", action='store_true')
     args = parser.parse_args()
@@ -397,45 +429,15 @@ def main():
     sim = Backup(nodes)
     sim.run(parse_timespan(args.max_t))
     sim.log_info(f"Simulation over")
-    lost_bloks = 0
-    _total_blocks = 0
-    for node in nodes:
-        print(f"{node}: {sum(node.local_blocks)} local blocks, "
-                         f"{sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks, "
-                         f"{len(node.remote_blocks_held)} remote blocks held"
-                         f"  online {node.online}, failed {node.failed}")
-        
-        for i in range(node.n):
-            _total_blocks += 1
-            if node.local_blocks[i] == False and node.backed_up_blocks[i] is None:
-                _lost_bloks += 1
-    print(f"lost blocks = {lost_bloks} of {total_blocks}\n")
-    total_blocks = _total_blocks
-    return lost_bloks
 
-n_test = 20
+    return lostBlocks(nodes)
+
+n_test = 1
 if __name__ == '__main__':
     lost = []
     for _ in range(n_test):
         lost.append(main())
-
-
-vals, bins = np.histogram([], bins = list(range(n_test+1)))
-print(total_blocks)
-for i in range(n_test):
-    vals[i] = lost[i]*100/total_blocks
-print(vals)
-fig,ax = plt.subplots(1,1)
-
-# plot histogram values as bar chart
-ax.bar(bins[:-1] + 1/2, vals, 1)
-ax.set_title("Number of blocks lost")
-ax.set_xticks([0,5,10,15,20])
-ax.set_yticks([10,20,30,40,50,60,70,80,90,100])
-ax.set_xlabel('simulations')
-ax.set_ylabel('no. of lost blocks')
-plt.show()
-
+    createHistogram(lost)
 
 #default: 0, 17, 5, 3, 11, 5, 0, 0, 5, 0, 0, 0, 13, 10, 7, 0, 0, 8, 8, 15
 #k = 7:   no errori
