@@ -364,7 +364,7 @@ class BlockRestoreComplete(TransferComplete):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="configuration file")
-    parser.add_argument("--max-t", default="100 years")
+    parser.add_argument("--max-t", default="50 years")
     parser.add_argument("--seed", help="random seed")
     parser.add_argument("--verbose", action='store_true')
     args = parser.parse_args()
@@ -399,8 +399,6 @@ def main():
     lost_bloks = 0
     total_blocks = 0
     for node in nodes:
-        if node.name.find("server"):
-            continue
         print(f"{node}: {sum(node.local_blocks)} local blocks, "
                          f"{sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks, "
                          f"{len(node.remote_blocks_held)} remote blocks held"
@@ -421,9 +419,10 @@ if __name__ == '__main__':
 
 
 vals, bins = np.histogram([], bins = list(range(n_test+1)))
-
+total_blocks = lost[0][0]
+print(total_blocks)
 for i in range(n_test):
-    _,vals[i] = lost[i]
+    vals[i] = lost[i][1]*100/total_blocks
 print(vals)
 fig,ax = plt.subplots(1,1)
 
