@@ -363,7 +363,7 @@ class BlockRestoreComplete(TransferComplete):
 # count block that get lost during the simulation
 def lostBlocks(nodes):
     global total_blocks
-    total_blocks = nodes[0].n*len(nodes)
+    total_blocks = 0
     lost_bloks = 0
     
     # print the state of every node
@@ -371,6 +371,7 @@ def lostBlocks(nodes):
         print(f"{node}: {sum(node.local_blocks)} local blocks, {sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks," 
         f"{len(node.remote_blocks_held)} remote blocks held online {node.online}, failed {node.failed}")        #DEBUG
         for i in range(node.n):
+            total_blocks += 1
             if node.local_blocks[i] == False and node.backed_up_blocks[i] is None:
                 lost_bloks += 1
     print(f"lost blocks = {lost_bloks} of {total_blocks}\n")        #DEBUG
@@ -436,6 +437,3 @@ if __name__ == '__main__':
     for _ in range(n_test):
         lost.append(main())
     createHistogram(lost)
-
-#default: 0, 17, 5, 3, 11, 5, 0, 0, 5, 0, 0, 0, 13, 10, 7, 0, 0, 8, 8, 15
-#k = 7:   no errori
