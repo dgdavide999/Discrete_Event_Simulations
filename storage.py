@@ -361,14 +361,14 @@ class BlockRestoreComplete(TransferComplete):
             owner.local_blocks = [True] * owner.n
 
 # count block that get lost during the simulation
-def lostBlocks(nodes):
+def lostBlocks(nodes, sim):
     global total_blocks
     total_blocks = 0
     lost_bloks = 0
     
     # print the state of every node
     for node in nodes:
-        print(f"{node}: {sum(node.local_blocks)} local blocks, {sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks," 
+        sim.log_info(f"{node}: {sum(node.local_blocks)} local blocks, {sum(peer is not None for peer in node.backed_up_blocks)} backed up blocks," 
         f"{len(node.remote_blocks_held)} remote blocks held online {node.online}, failed {node.failed}")        #DEBUG
         for i in range(node.n):
             total_blocks += 1
@@ -382,7 +382,7 @@ def createHistogram(lost):
     vals, bins = np.histogram([], bins = list(range(n_test+1)))
     for i in range(n_test):
         vals[i] = lost[i]*100/total_blocks
-    fig,ax = plt.subplots(1,1)
+    _,ax = plt.subplots(1,1)
 
     # plot histogram values as bar chart
     ax.bar(bins[:-1] + 1/2, vals, 1)
@@ -429,11 +429,12 @@ def main():
     sim.run(parse_timespan(args.max_t))
     sim.log_info(f"Simulation over")
 
-    return lostBlocks(nodes)
+    return lostBlocks(nodes, sim)
 
-n_test = 20
+n_test = 40
 if __name__ == '__main__':
     lost = []
-    for _ in range(n_test):
+    for i in range(n_test):
+        print(i)
         lost.append(main())
     createHistogram(lost)
